@@ -15,9 +15,9 @@ def print_voices():
     print(available_voices)
 
 
-def text_to_voice(text, filename="output.wav"):
+def text_to_voice(input, filename="output.wav"):
     audio = generate(
-        text=text,
+        text=input,
         voice="W5xFSFFgg8Y0CKoTQ5n8",
         model="eleven_monolingual_v1"
     )
@@ -28,5 +28,7 @@ def text_to_voice(text, filename="output.wav"):
 
     return filename, audio
 
-filename, audio = text_to_voice("Write a video script for a short, informative, scientific video based on this scientific paper.")
-play(audio)
+
+if __name__ == "__main__":
+    filename, audio = text_to_voice("Write a video script for a short, informative, scientific video based on this scientific paper.")
+    play(audio)

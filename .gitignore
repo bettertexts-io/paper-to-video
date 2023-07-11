@@ -165,3 +165,4 @@ tmp
 *.mp3
 *.wav
 media/
+.DS_Store

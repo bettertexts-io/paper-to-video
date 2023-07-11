@@ -13,7 +13,7 @@ load_dotenv(dotenv_path)
 
 os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY")
 
-def text_to_script(input):
+def text_to_script(input) -> str:
     """Converts a paper's text to a vid script."""
 
     print("Converting text to script...")
@@ -27,10 +27,12 @@ def text_to_script(input):
     print("Generating script...")
 
     result = llm_chain(inputs={input})
-    print(result["text"])
+
+    return result["text"]
 
 
-# Read sample string from txt file
-with open("excerpt.txt", "r") as f:
-    input = f.read()
-    text_to_script(input)
+if __name__ == "__main__":
+    # Read sample string from txt file
+    with open("excerpt.txt", "r") as f:
+        input = f.read()
+        print(text_to_script(input))

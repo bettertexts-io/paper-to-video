@@ -25,5 +25,7 @@ def pdf_to_text(path):
     if text:
         return text
 
-# Test case: print the text of the paper
-print(pdf_to_text('paper-example.pdf'))
+
+if __name__ == "__main__":
+    # Test case: print the text of the paper
+    print(pdf_to_text('paper-example.pdf'))

@@ -26,4 +26,5 @@ def render_vid(animations, voice, output='output.mp4'):
     final_clip.write_videofile(output, codec='libx264', audio_codec='aac')
 
 # Use the function
-render_vid(['example-scene.mp4'], 'output.wav')
+if __name__ == "__main__":
+    render_vid(['example-scene.mp4'], 'output.wav')

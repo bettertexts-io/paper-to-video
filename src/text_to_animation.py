@@ -35,7 +35,7 @@ def create_scene(input_script):
             scene = SceneClass(sentence)
 
             # set custom output file name
-            output_file = f"{sentence.replace(' ', '_')}.mp4"  
+            output_file = f"./media/videos/1080p60/partial_movie_files/{sentence.replace(' ', '_')}.mp4"  
             config['output_file'] = output_file
 
             scene.render()  # Manim renders the scene upon calling this method
@@ -48,10 +48,10 @@ def create_scene(input_script):
 
     return output_files
 
-# Example usage
-script = {
-    "This is a simple text scene": "text",
-    "Integrate function from a to b": "mathtex"
-}
+if __name__ == "__main__":
+    # Example usage
+    script = {
+        "This is a simple text scene": "text",
+    }
 
-print(create_scene(script))
+    print(create_scene(script))
