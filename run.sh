@@ -4,7 +4,7 @@ MODE=$1
 ENTRY="${2:-src/app.py}"
 OTHER=$3
 
-CONTAINER_NAME="gramler-crawler"
+CONTAINER_NAME="paper2video"
 
 # Define cleanup procedure
 cleanup() {
