@@ -1,4 +1,2 @@
-lib
-bin
-include
-pyvenv.cfg
+tmp
+env
