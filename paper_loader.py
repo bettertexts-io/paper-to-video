@@ -5,6 +5,7 @@ import logging
 import os
 import shutil
 import tarfile
+from typing import List
 import requests
 
 def arxiv_id_to_latex(paper_id: str) -> str:
@@ -53,11 +54,16 @@ def traverse_tex_file_contents(directory: str) -> str:
     # Use os.path.join and '**' to specify recursive search
     tex_file_paths = glob.glob(os.path.join(directory, '**', '*.tex'), recursive=True)
 
-    tex_files_content = ''
+    tex_contents = []
     for file_path in tex_file_paths:
-        tex_files_content += read_file(file_path)
+        tex_contents.append(read_file(file_path))
+
+    tex_contents = order_by_input_occurrences(tex_contents)
+
+    tex_files_content = "\n".join(tex_contents)
 
     return tex_files_content
     
     
-    
+def order_by_input_occurrences(arr: List[str]) -> List[str]:
+    return sorted(arr, key=lambda x: x.count('\\input'), reverse=True)

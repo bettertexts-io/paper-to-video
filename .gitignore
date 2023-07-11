@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
 
 tmp
-
-__pycache__
+*pycache*/*
+*.py
