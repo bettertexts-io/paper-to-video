@@ -21,8 +21,8 @@ RUN apt-get install -y \
     texlive-latex-recommended \
     texlive-science \
     tipa \
+    ffmpeg \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
- 
 
 COPY . /app
 

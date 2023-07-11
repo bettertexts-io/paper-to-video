@@ -18,3 +18,5 @@ manim
 pdfminer.six
 elevenlabs
 moviepy
+black
+pylint

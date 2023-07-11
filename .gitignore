@@ -161,8 +161,7 @@ cython_debug/
 
 tmp
 *pycache*/*
-*.py
-output.mp4
-output.mp3
-output.wav
+*.mp4
+*.mp3
+*.wav
 media/
