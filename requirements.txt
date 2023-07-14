@@ -13,10 +13,13 @@ tqdm==4.65.0
 urllib3==2.0.3
 yarl==1.9.2
 python-dotenv==1.0.0
-langchain
 manim
 pdfminer.six
 elevenlabs
 moviepy
 black
 pylint
+langchain[llms]
+python-dotenv
+tiktoken
+poe-api
