@@ -166,3 +166,4 @@ tmp
 *.wav
 media/
 .DS_Store
+chroma_db
