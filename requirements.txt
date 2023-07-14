@@ -19,6 +19,11 @@ elevenlabs
 moviepy
 black
 pylint
+pylatexenc
+transformers
+torch
+tensorflow
+flax
 langchain[llms]
 python-dotenv
 tiktoken
