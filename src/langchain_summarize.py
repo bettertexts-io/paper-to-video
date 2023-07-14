@@ -41,15 +41,10 @@ def summarize_by_map_reduce(text, prompt_template=None):
 
     return summary_chain.run(docs)
 
-with open("testlatex.txt", "r") as f:
-    text = f.read()
-
-prompt_template = """Write a concise summary of the following paper written in latex. Always include the sections of the document as a list in your answer:
+LATEX_SUMMARY_WITH_SECTIONS_PROMPT = """Write a concise summary of the following paper written in latex. Always include the sections of the document as a list in your answer:
 
 
 {text}
 
 
 CONCISE SUMMARY WITH SECTIONS AS LIST AT THE END:"""
-
-print(summarize_by_map_reduce(text, prompt_template))
