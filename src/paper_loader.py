@@ -11,6 +11,14 @@ import requests
 def arxiv_id_to_latex(paper_id: str) -> str:
     """Example id: 1706.03762"""
 
+    dir_path = f"tmp/{paper_id}"
+    archive_path = f"{dir_path}/arch.gz"
+    res_path = f"{dir_path}/res"
+
+    if os.path.exists(f"tmp/{paper_id}/latex.txt"):
+        logging.info("Already downloaded this paper, returning cached version.")
+        return read_file(f"tmp/{paper_id}/latex.txt")
+
     response = requests.get(f"https://arxiv.org/e-print/{paper_id}")
     content_type = response.headers["content-type"]
 
@@ -21,10 +29,6 @@ def arxiv_id_to_latex(paper_id: str) -> str:
     logging.info("Content Type: " + content_type)
     logging.info("Status Code: " + str(response.status_code))
     logging.info("File Size: " + str(round(len(response.content) / 1024)) + " KB")
-
-    dir_path = f"tmp/{paper_id}"
-    archive_path = f"{dir_path}/arch.gz"
-    res_path = f"{dir_path}/res"
 
     if not os.path.exists(dir_path):
       os.mkdir(f"tmp/{paper_id}")
@@ -42,6 +46,9 @@ def arxiv_id_to_latex(paper_id: str) -> str:
     os.remove(archive_path)
 
     latex = traverse_tex_file_contents(res_path)
+
+    with open(f"{dir_path}/latex.txt", "w") as f:
+        f.write(latex)
 
     return latex
 

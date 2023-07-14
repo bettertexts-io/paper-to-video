@@ -13,7 +13,15 @@ llm = ChatOpenAI(
     max_tokens=4096
 )
 
-def summarize_by_map_reduce(text):    
+DEFAULT_PROMPT_TEMPLATE = """Write a concise summary of the following:
+
+
+{text}
+
+
+CONCISE SUMMARY IN ENGLISH:"""
+
+def summarize_by_map_reduce(text, prompt_template=None):    
     text_splitter = RecursiveCharacterTextSplitter(separators=["\section", "\subsection", "\n"], chunk_size=10000, chunk_overlap=500)
     docs = text_splitter.create_documents([text])
 
@@ -24,13 +32,9 @@ def summarize_by_map_reduce(text):
 
     logging.info(f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens")
 
-    prompt_template = """Write a concise summary of the following paper written in latex. Always include the sections of the document as a list in your answer:
+    if prompt_template is None:
+        prompt_template = DEFAULT_PROMPT_TEMPLATE
 
-
-    {text}
-
-
-    CONCISE SUMMARY WITH SECTIONS AS LIST AT THE END:"""
     PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])
 
     summary_chain = load_summarize_chain(llm=llm, chain_type='map_reduce', map_prompt=PROMPT, combine_prompt=PROMPT)
@@ -40,4 +44,12 @@ def summarize_by_map_reduce(text):
 with open("testlatex.txt", "r") as f:
     text = f.read()
 
-print(summarize_by_map_reduce(text))
+prompt_template = """Write a concise summary of the following paper written in latex. Always include the sections of the document as a list in your answer:
+
+
+{text}
+
+
+CONCISE SUMMARY WITH SECTIONS AS LIST AT THE END:"""
+
+print(summarize_by_map_reduce(text, prompt_template))
