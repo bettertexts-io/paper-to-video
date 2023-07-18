@@ -37,8 +37,8 @@ def vectorize_paper_in_chroma(input: str, embedding_function: EmbeddingsType = E
         embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     elif embedding_function == EmbeddingsType.OPENAI:
         embedding_function = OpenAIEmbeddings()
-
-    # TODO: render lex into plain text before generating the embeddings
+    
+    # TODO: Store latex as metadata next to text
     
     # load it into Chroma
     db = Chroma.from_texts(texts, embedding_function, persist_directory="../chroma_db")
