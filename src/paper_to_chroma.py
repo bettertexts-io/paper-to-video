@@ -13,6 +13,8 @@ def vectorize_paper_in_chroma(input: str):
     # create the open-source embedding function
     embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
+    # TODO: render lex into plain text before generating the embeddings
+    
     # load it into Chroma
     db = Chroma.from_texts(texts, embedding_function, persist_directory="../chroma_db")
     db.persist()

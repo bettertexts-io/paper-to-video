@@ -1,4 +1,5 @@
 import logging
+import constants
 
 from langchain import PromptTemplate
 from constants import OPENAI_API_KEY
