@@ -1,9 +1,9 @@
 import json
 
 from langchain import PromptTemplate
+from answer_as_json import answer_as_json
 from constants import OPENAI_API_KEY
 from langchain.chat_models import ChatOpenAI
-from langchain.chains import create_extraction_chain, create_extraction_chain_pydantic
 
 from script import script_schema
 from tmp import tmp_barebone_script_path
@@ -14,10 +14,6 @@ llm = ChatOpenAI(
     temperature=0.8,
     max_tokens=4096
 )
-
-def answer_as_json(question: str, schema: any):
-    chain = create_extraction_chain(schema=schema, llm=llm)
-    return chain.run(question)[0]
 
 def generate_barbone_script(summary: str) -> dict:
     text_template = """Write a barebone script for a short video based on a summary and the list of sections in a document. 
@@ -33,6 +29,6 @@ def generate_barbone_script(summary: str) -> dict:
     """
     prompt_template = PromptTemplate.from_template(template=text_template)
 
-    answer_obj = answer_as_json(prompt_template.format(summary=summary), script_schema(exclude_scenes=True))
+    answer_obj = answer_as_json(llm=llm, question=prompt_template.format(summary=summary), schema=script_schema(exclude_scenes=True))
 
     return answer_obj
