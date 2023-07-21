@@ -5,7 +5,8 @@ from langchain import PromptTemplate
 from constants import OPENAI_API_KEY
 from langchain.chat_models import ChatOpenAI
 from langchain.chains.summarize import load_summarize_chain
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+from latex_to_chunks import chunk_latex_into_docs
 
 
 llm = ChatOpenAI(
@@ -36,12 +37,9 @@ CONCISE SUMMARY WITH SECTIONS AS LIST AT THE END:"""
 Summarize a text input by using the langchain refine summarization chain.
 """
 def summarize_by_refine(text, prompt_template=None):    
-    text_splitter = RecursiveCharacterTextSplitter(separators=["\section", "\subsection", "\n"], chunk_size=10000, chunk_overlap=500)
-    docs = text_splitter.create_documents([text])
+    docs = chunk_latex_into_docs(text)
 
     num_docs = len(docs)
-    num_docs = len(docs)
-
     num_tokens_first_doc = llm.get_num_tokens(docs[0].page_content)
 
     logging.info(f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens")
@@ -59,13 +57,10 @@ def summarize_by_refine(text, prompt_template=None):
 """
 Summarize a text input by using the langchain map_reduce summarization chain.
 """
-def summarize_by_map_reduce(text, prompt_template=None):    
-    text_splitter = RecursiveCharacterTextSplitter(separators=["\section", "\subsection", "\n"], chunk_size=10000, chunk_overlap=500)
-    docs = text_splitter.create_documents([text])
+def summarize_by_map_reduce(text, prompt_template=None):
+    docs = chunk_latex_into_docs(text)
 
     num_docs = len(docs)
-    num_docs = len(docs)
-
     num_tokens_first_doc = llm.get_num_tokens(docs[0].page_content)
 
     logging.info(f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens")

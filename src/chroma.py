@@ -7,10 +7,10 @@ from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.chains.question_answering import load_qa_chain
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 
 from constants import OPENAI_API_KEY
+from latex_to_chunks import chunk_latex_into_sections
 from paper_loader import arxiv_id_to_latex
 from latex_to_text import extract_text_from_latex
 
@@ -51,19 +51,18 @@ Key Points and Details:
 """
 Vectorize the paper in Chroma vector store using the given embedding function
 """
-def vectorize_paper_in_chroma(latex_input: str):
+def vectorize_latex_in_chroma(latex_input: str):
     # split it into chunks
-    text_splitter = RecursiveCharacterTextSplitter(separators=["\section", "\subsection", "\n"], chunk_size=10000, chunk_overlap=500)
-    latex_chunks = text_splitter.split_text(latex_input)
+    sections = chunk_latex_into_sections(latex_input)
 
     docs = []
-    for chunk in latex_chunks:
-        plain_text = extract_text_from_latex(chunk)
+    for section in sections:
+        plain_text = extract_text_from_latex(section)
         cleaned_text = plain_text.strip().replace('\n', '')
 
         doc = Document(
             page_content=cleaned_text,
-            metadata={"latex": chunk},
+            metadata={"latex": section},
         )
 
         docs.append(doc)
@@ -82,15 +81,9 @@ def query_chroma(input: str, number_of_results = 5):
     return docs
 
 
-def query_paper_by_prompt(question: str, context_prompt = DEFAULT_CONTEXT_PROMPT):
+def query_chroma_by_prompt(question: str):
     # Load chroma
     docs = query_chroma(question, 2)
-
-    # prompt_template = context_prompt
-
-    # PROMPT = PromptTemplate(
-    #     template=prompt_template, input_variables=["context", "question"]
-    # )
 
     # Query your database here
     chain = load_qa_chain(llm, chain_type="map_reduce", verbose=True)
@@ -99,18 +92,18 @@ def query_paper_by_prompt(question: str, context_prompt = DEFAULT_CONTEXT_PROMPT
 
 
 if __name__ == "__main__":
-    # load the document and split it into chunks 
-    # paper = arxiv_id_to_latex("1706.03762")
+    # load a sample paper
+    paper_content = arxiv_id_to_latex("1706.03762")
 
-    # vectorize_paper_in_chroma(paper)
+    vectorize_latex_in_chroma(paper_content)
 
     # Query chroma
-    # docs = query_chroma("position-wise feed-forward networks", 1)
-    # print(len(docs))
+    docs = query_chroma("position-wise feed-forward networks", 1)
+    print(len(docs))
 
-    # Query paper by prompt
-    answer = query_paper_by_prompt("What is this paper about?")
-    print(answer)
+    # # Query paper by prompt
+    # answer = query_paper_by_prompt("What is this paper about?")
+    # print(answer)
 
 
 
