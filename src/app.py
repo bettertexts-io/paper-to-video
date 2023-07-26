@@ -43,8 +43,6 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
         # Turn the summary into a barebone video script structure with approximated lengths of the sections
         barebone_script_json = generate_barebone_script(summary)
 
-        print(barebone_script_json)
-
         # Store barebone script in tmp folder
         barebone_path = tmp_barebone_script_path(arxiv_id)
         with open(barebone_path, 'w') as f:
