@@ -11,27 +11,23 @@ from latex_to_chunks import chunk_latex_into_docs
 
 llm = ChatOpenAI(
     model_name="gpt-4",
-    temperature=0,
+    temperature=0.2,
     max_tokens=4096
 )
 
-DEFAULT_PROMPT_TEMPLATE = """Write a concise summary of the following:
-
-
-{text}
-
-
-CONCISE SUMMARY IN ENGLISH:"""
-
-
-LATEX_SUMMARY_WITH_SECTIONS_PROMPT = """Write a concise summary of the following paper written in latex. Do not include sections like 'Conclusion', 'Bibliography' and 'References'. Always include the other sections of the document as a list in your answer:
-
+DEFAULT_PROMPT_TEMPLATE = """Please summarize the following content concisely while retaining the core ideas:
 
 {text}
 
+SUMMARY:
+"""
 
-CONCISE SUMMARY WITH SECTIONS AS LIST AT THE END:"""
+LATEX_SUMMARY_WITH_SECTIONS_PROMPT = """Summarize the following LaTeX academic paper. Exclude 'Conclusion', 'Bibliography', and 'References' sections. Include a list of other sections at the end of your answer:
 
+{text}
+
+SUMMARY WITH SECTIONS:
+"""
 
 """
 Summarize a text input by using the langchain refine summarization chain.
