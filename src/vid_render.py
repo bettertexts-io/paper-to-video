@@ -23,6 +23,7 @@ def render_vid(animations, voice, output='output.mp4'):
     final_clip = final_clip.set_audio(audio)
 
     # Write the result to a file (many options available !)
+    # TODO: Check codex and audio encoding
     final_clip.write_videofile(output, codec='libx264', audio_codec='aac')
 
 # Use the function
