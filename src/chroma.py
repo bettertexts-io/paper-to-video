@@ -18,7 +18,8 @@ os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 llm = ChatOpenAI(
     model_name="gpt-4",
-    temperature=0.6,
+    # Prevent creativity
+    temperature=0,
     max_tokens=4096
 )
 
@@ -34,18 +35,13 @@ if EMBEDDDING_FUNCTION == EmbeddingsType.OPENSOURCE:
 elif EMBEDDDING_FUNCTION == EmbeddingsType.OPENAI:
     embedding_function = OpenAIEmbeddings()
 
-DEFAULT_CONTEXT_PROMPT = """
-Given the key points and most important details section from a scientific paper, 
-generate an informative and engaging script for a video presentation. Ensure the script is concise,
-understandable for a general audience, and highlights the main takeaways:
-
-Context:
+DEFAULT_CONTEXT_PROMPT = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
 
 {context}
 
-Key Points and Details: 
+Question: {question}
 
-{question}
+Write an informative and engaging script for a video presentation. Please only output the narrator's script as plain text:
 """
 
 """
@@ -83,7 +79,7 @@ def query_chroma(input: str, number_of_results = 5):
 
 def query_chroma_by_prompt(question: str):
     # Load chroma
-    docs = query_chroma(question, 2)
+    docs = query_chroma(question)
 
     # Query your database here
     chain = load_qa_chain(llm, chain_type="map_reduce", verbose=True)
@@ -91,19 +87,30 @@ def query_chroma_by_prompt(question: str):
     return chain.run(input_documents=docs, question=question)
 
 
+def query_chroma_by_prompt_with_template(question: str, prompt_template: str = DEFAULT_CONTEXT_PROMPT):
+    # Load chroma
+    docs = query_chroma(question, 3)
+
+    PROMPT = PromptTemplate(
+        template=prompt_template, input_variables=["context", "question"]
+    )
+    chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
+
+    result = chain({"input_documents": docs, "question": question}, return_only_outputs=True)
+    return result["output_text"]
+
+
 if __name__ == "__main__":
-    # load a sample paper
-    paper_content = arxiv_id_to_latex("1706.03762")
+    # # load a sample paper
+    # paper_content = arxiv_id_to_latex("1706.03762")
 
-    vectorize_latex_in_chroma(paper_content)
-
-    # Query chroma
-    docs = query_chroma("position-wise feed-forward networks", 1)
-    print(len(docs))
+    # vectorize_latex_in_chroma(paper_content)
 
     # # Query paper by prompt
-    # answer = query_paper_by_prompt("What is this paper about?")
-    # print(answer)
+    keyword = "Introduction"
+
+    answer = query_chroma_by_prompt_with_template(keyword)
+    print(answer)
 
 
 

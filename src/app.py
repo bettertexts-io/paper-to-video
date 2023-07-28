@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 from chroma import vectorize_latex_in_chroma
@@ -6,7 +7,7 @@ from langchain_summarize import LATEX_SUMMARY_WITH_SECTIONS_PROMPT, summarize_by
 from paper_loader import arxiv_id_to_latex
 from summary_to_script import generate_barebone_script
 from script_refinement import generate_script
-from tmp import tmp_barebone_script_path
+from tmp import tmp_barebone_script_path, tmp_script_path
 
 logging.basicConfig(level=logging.INFO)
 
@@ -40,23 +41,43 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
         return
 
     try:
-        # Turn the summary into a barebone video script structure with approximated lengths of the sections
-        barebone_script_json = generate_barebone_script(summary)
-
-        # Store barebone script in tmp folder
+        # Check the path for the barebone script
         barebone_path = tmp_barebone_script_path(arxiv_id)
-        with open(barebone_path, 'w') as f:
-            json.dump(barebone_script_json, f, indent=4)
+        
+        # If the file already exists, load it
+        if os.path.exists(barebone_path):
+            with open(barebone_path, 'r') as f:
+                barebone_script_json = json.load(f)
+        # Otherwise, generate the barebone script and store it
+        else:
+            # Turn the summary into a barebone video script structure with approximated lengths of the sections
+            barebone_script_json = generate_barebone_script(summary)
+
+            # Store barebone script in tmp folder
+            with open(barebone_path, 'w') as f:
+                json.dump(barebone_script_json, f, indent=4)
             
     except Exception as e:
         logging.error(f"Failed to create video script: {e}")
         return
     
     try:
-        # Generate a detailed summary for each section of the generated script structure
-        # Feed in the generated barebone script
-        section_script = generate_script(barebone_script_json)
-        print(section_script)
+        # Define the path for the enriched script
+        script_path = tmp_script_path(arxiv_id)
+
+        # If the file already exists, load it
+        if os.path.exists(script_path):
+            with open(script_path, 'r') as f:
+                enriched_script_json = json.load(f)
+        # Otherwise, generate the enriched script and store it
+        else:
+            # Generate a detailed summary for each section of the generated script structure
+            # Feed in the generated barebone script
+            enriched_script_json = generate_script(barebone_script_json)
+            
+            # Store script in tmp folder
+            with open(script_path, 'w') as f:
+                json.dump(enriched_script_json, f, indent=4)
     except Exception as e:
         logging.error(f"Failed to generate detailed summary: {e}")
         return
