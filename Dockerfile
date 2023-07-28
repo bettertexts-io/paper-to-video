@@ -3,12 +3,9 @@ FROM python:3.11-bookworm
 WORKDIR /app
 
 RUN set -x \
-   && apt update
-
-RUN set -x \
-   && apt upgrade -y
-
-RUN apt-get install -y \
+   && apt update \
+   && apt upgrade -y \
+   && apt-get install -y \
    build-essential \
    libcairo2-dev \
    libpango1.0-dev \
