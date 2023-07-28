@@ -1,7 +1,6 @@
 import os
 from enum import Enum
 from langchain import PromptTemplate
-from langchain.chains import RetrievalQA
 from langchain.schema import Document
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -11,7 +10,6 @@ from langchain.vectorstores import Chroma
 
 from constants import OPENAI_API_KEY
 from latex_to_chunks import chunk_latex_into_sections
-from paper_loader import arxiv_id_to_latex
 from latex_to_text import extract_text_from_latex
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
@@ -41,7 +39,7 @@ DEFAULT_CONTEXT_PROMPT = """Use the following pieces of context to answer the qu
 
 Question: {question}
 
-Write an informative and engaging script for a video presentation. Please only output the narrator's script as plain text:
+Craft a structured script with a narrator and scene descriptions. Avoid introductory phrases and conclusions. Ensure the content flows smoothly for a general audience:
 """
 
 """
@@ -89,7 +87,7 @@ def query_chroma_by_prompt(question: str):
 
 def query_chroma_by_prompt_with_template(question: str, prompt_template: str = DEFAULT_CONTEXT_PROMPT):
     # Load chroma
-    docs = query_chroma(question, 3)
+    docs = query_chroma(question, 2)
 
     PROMPT = PromptTemplate(
         template=prompt_template, input_variables=["context", "question"]
