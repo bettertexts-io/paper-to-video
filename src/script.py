@@ -4,6 +4,7 @@ class TextScriptScene(NamedTuple):
     type = "TEXT"
     title: str
     context: str
+    script: str
     data: str
 
 class ScriptSection(NamedTuple):
@@ -39,7 +40,8 @@ def script_schema(exclude_scenes: bool = False):
                 "type": "object",
                 "properties": {
                     "type": {"type": "string"},
-                    "data": {}
+                    "data": {},
+                    "script": {"type": "string"},
                 },
                 "required": ["type", "data"]
             }

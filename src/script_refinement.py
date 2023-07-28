@@ -1,5 +1,5 @@
 import time
-from chroma import query_chroma_by_prompt
+from chroma import query_chroma_by_prompt, query_chroma_by_prompt_with_template
 
 def generate_script(barebone_script_json: dict):
     """
@@ -7,29 +7,24 @@ def generate_script(barebone_script_json: dict):
     This function queries the chroma vector database for each section to generate a script for a video.
     """
 
-    script = []
-
     # Load json and iterate over each section
     sections = barebone_script_json["sections"]
 
     for section in sections:
-        context = section["context"]
+        title = section["title"]
 
-        # Frame the question to chroma to get video-friendly content
-        section_prompt = f"Based on the following information:\n\n{context}\n\nCan you generate a script fit for a video presentation."
+        section_script = query_chroma_by_prompt_with_template(title)
 
-        section_script = query_chroma_by_prompt(section_prompt)
+        # Remove the special characters
+        section_script = section_script.replace('\n', ' ').replace('\\', '')
 
-        # Check if chroma's response indicates a lack of information
-        if "does not provide information" in section_script:
-            section_script = f"Unfortunately, we couldn't generate a detailed video script based on the provided context. Further research or a different source might be required."
+        # Write the script back to the section in the dictionary
+        section["script"] = section_script
 
-        script.append(section_script)
+        # Sleep for 10 seconds between requests
+        time.sleep(10)
 
-        # Sleep for 15 seconds between requests
-        time.sleep(15)
-
-    return script
+    return barebone_script_json
 
 
 def enrich_script_with_resources(section_script: list):

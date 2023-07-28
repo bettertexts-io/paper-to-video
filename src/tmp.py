@@ -12,3 +12,6 @@ def tmp_latex_path(paper_id):
 
 def tmp_barebone_script_path(paper_id):
     return f"{tmp_dir_path(paper_id)}/barebone.json"
+
+def tmp_script_path(paper_id):
+    return f"{tmp_dir_path(paper_id)}/script.json"

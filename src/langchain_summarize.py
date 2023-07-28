@@ -29,6 +29,13 @@ LATEX_SUMMARY_WITH_SECTIONS_PROMPT = """Summarize the following LaTeX academic p
 SUMMARY WITH SECTIONS:
 """
 
+CRAFT_SCRIPT_PROMPT = """Integrate the provided sections script into a single, cohesive narrator script. Ensure continuity and smooth transitions between sections. Exclude any scene descriptions and maintain a consistent tone suitable for a general audience:
+
+{text}
+
+PLAIN TEXT SCRIPT:
+"""
+
 """
 Summarize a text input by using the langchain refine summarization chain.
 """
