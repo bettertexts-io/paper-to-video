@@ -4,8 +4,13 @@ class TextScriptScene(NamedTuple):
     type = "TEXT"
     title: str
     context: str
-    script: str
-    data: str
+    speakerScript: str
+class TextScriptScene(NamedTuple):
+    type = "ANIMATION"
+    title: str
+    context: str
+    manimScript: str
+    speakerScript: str
 
 class ScriptSection(NamedTuple):
     title: str

@@ -8,16 +8,17 @@ from paper_loader import arxiv_id_to_latex
 from summary_to_script import generate_barebone_script
 from script_refinement import generate_script
 from text_to_voice import text_to_voice
-from elevenlabs import play
 from tmp import tmp_barebone_script_path, tmp_script_path
+from dotenv import load_dotenv
+load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
 
 SKIP_VECTORIZATION = True
 
 def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
     
     try:
+        logging.info(f"Fetching paper with id {arxiv_id}")
         latex = arxiv_id_to_latex(arxiv_id)
     except Exception as e:
         logging.error(f"Failed to fetch the paper with id {arxiv_id}: {e}")
@@ -25,6 +26,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
     
     try:
         # Check if paper is already vectorized otherwise store vectors in chroma db
+        logging.info(f"Vectorizing paper")
         if not SKIP_VECTORIZATION:
             vectorize_latex_in_chroma(latex)
     except Exception as e:
@@ -34,6 +36,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
     try:
         # Summarize the paper using langchain map_reduce summarization
         # The summary includes a list of the sections of the paper at the end
+        logging.info(f"Summarizing paper")
         if MOCK_SUMMARY:
             summary = MOCK_SUMMARY
         else:
@@ -43,6 +46,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
         return
 
     try:
+        logging.info(f"Generating barebone video script")
         # Check the path for the barebone script
         barebone_path = tmp_barebone_script_path(arxiv_id)
         
@@ -64,6 +68,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
         return
     
     try:
+        logging.info(f"Generating detailed context for each section")
         # Define the path for the enriched script
         script_path = tmp_script_path(arxiv_id)
 
@@ -125,4 +130,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
 
 
 if __name__ == "__main__":    
+    logging.basicConfig(level=logging.INFO)
+
+    logging.info("Starting app")
     paper_2_video("1706.03762", MOCK_SUMMARY=MOCK_SUMMARY)

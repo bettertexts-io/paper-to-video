@@ -8,11 +8,9 @@ from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddi
 from langchain.chains.question_answering import load_qa_chain
 from langchain.vectorstores import Chroma
 
-from constants import OPENAI_API_KEY
+from constants import *
 from latex_to_chunks import chunk_latex_into_sections
 from latex_to_text import extract_text_from_latex
-
-os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 llm = ChatOpenAI(
     model_name="gpt-4",
