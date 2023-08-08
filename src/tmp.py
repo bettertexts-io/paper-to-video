@@ -15,3 +15,6 @@ def tmp_barebone_script_path(paper_id):
 
 def tmp_script_path(paper_id):
     return f"{tmp_dir_path(paper_id)}/script.json"
+
+def tmp_audio_path(paper_id):
+    return f"{tmp_dir_path(paper_id)}/audio.mp3"
