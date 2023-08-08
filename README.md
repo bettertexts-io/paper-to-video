@@ -1,17 +1,8 @@
-# Dev Run
+goal is to convert a paper into a video. best case we are going to add animations with manim in the end
 
-`chmod u+x run.sh`
-`./run.sh dev <script to execute>`
+we first should focus only on arxiv i think this would be the best.
 
-The repo directory will be mounted into the container, so that there's no need to rebuild the container for every change.
-
-# Production Run
-
-`chmod u+x run.sh`
-`./run.sh prod <script to execute>`
-
-The repo directory will not be mounted into the conatiner 'cause of security implications.
-
-
-
+1. get paperlink from arxiv
+2. download paper in latex
+2. make summary 
 
