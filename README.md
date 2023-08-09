@@ -13,3 +13,8 @@ we have this paper and it contains latex, than manim is the special soup.
 
 the funny demo part of that would be just taking the abstract and. okay what about we are starting of with that. having this paper abstracts on a youtube video. this would be really funny. and than we can adjust the pipeline of arxiv gpt so that also a link to the video is provided. i could just try this out maybe. lets fucking do it, lets be creative. this would be funny actually. i think this would be kinda funny. 
 
+we eventually want to get a manim agent. lets fucking go.
+
+
+
+
