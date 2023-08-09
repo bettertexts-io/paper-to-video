@@ -45,7 +45,7 @@ def summarize_by_refine(text, prompt_template=None):
     num_docs = len(docs)
     num_tokens_first_doc = llm.get_num_tokens(docs[0].page_content)
 
-    logging.info(f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens")
+    print(f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens")
 
     if prompt_template is None:
         prompt_template = DEFAULT_PROMPT_TEMPLATE
@@ -66,13 +66,14 @@ def summarize_by_map_reduce(text, prompt_template=None):
     num_docs = len(docs)
     num_tokens_first_doc = llm.get_num_tokens(docs[0].page_content)
 
-    logging.info(f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens")
+    print(f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens")
 
     if prompt_template is None:
         prompt_template = DEFAULT_PROMPT_TEMPLATE
 
     PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])
 
-    summary_chain = load_summarize_chain(llm=llm, chain_type='map_reduce', prompt=PROMPT)
+    # removed prompt cause it's no longer supported
+    summary_chain = load_summarize_chain(llm=llm, chain_type='map_reduce')
 
     return summary_chain.run(docs)

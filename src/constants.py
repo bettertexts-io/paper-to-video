@@ -18,4 +18,4 @@ MOCK_SUMMARY =  """The paper "Attention Is All You Need" introduces a new networ
         6. Results
 """
 
-logging.info(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
+print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")

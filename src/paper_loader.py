@@ -9,19 +9,16 @@ import tarfile
 from typing import List
 import requests
 
-from tmp import tmp_archive_path, tmp_dir_path, tmp_latex_path, tmp_res_path
+from tmp import tmp_loader, tmp_path, tmp_saver
 
 def arxiv_id_to_latex(paper_id: str) -> str:
     """Example id: 1706.03762"""
-    
-    dir_path = tmp_dir_path(paper_id)
-    archive_path = tmp_archive_path(paper_id)
-    res_path = tmp_res_path(paper_id)
-    latex_path = tmp_latex_path(paper_id)
 
-    if os.path.exists(latex_path):
-        logging.info("Already downloaded this paper, returning cached version.")
-        return read_file(latex_path)
+    latex = tmp_loader(paper_id=paper_id, kind="latex", save_type="str")
+
+    if latex:
+        print("Already downloaded this paper, returning cached version.")
+        return latex
 
     response = requests.get(f"https://arxiv.org/e-print/{paper_id}")
     content_type = response.headers["content-type"]
@@ -30,18 +27,14 @@ def arxiv_id_to_latex(paper_id: str) -> str:
         logging.warn("Got a status code: " + str(response.status_code) + " while trying to download a paper.")
         return None
 
-    logging.info("Content Type: " + content_type)
-    logging.info("Status Code: " + str(response.status_code))
-    logging.info("File Size: " + str(round(len(response.content) / 1024)) + " KB")
+    print("Content Type: " + content_type)
+    print("Status Code: " + str(response.status_code))
+    print("File Size: " + str(round(len(response.content) / 1024)) + " KB")
 
-    if not os.path.exists(dir_path):
-      os.mkdir(f"tmp/{paper_id}")
+    tmp_saver(paper_id=paper_id, kind="archive", data=response.content, save_type="raw")
 
-    if not os.path.exists(res_path):
-      os.mkdir(res_path)
-
-    with open(archive_path, "wb") as f:
-        f.write(response.content)
+    archive_path = tmp_path(paper_id=paper_id, kind="archive")
+    res_path = tmp_path(paper_id=paper_id, kind="resDir")
 
     tar = tarfile.open(archive_path, "r:gz")
     tar.extractall(res_path)
@@ -51,8 +44,7 @@ def arxiv_id_to_latex(paper_id: str) -> str:
 
     latex = traverse_tex_file_contents(res_path)
 
-    with open(latex_path, "w") as f:
-        f.write(latex)
+    tmp_saver(paper_id=paper_id, kind="latex", data=latex, save_type="str")
 
     return latex
 

@@ -106,7 +106,7 @@ if __name__ == "__main__":
     keyword = "Introduction"
 
     answer = query_chroma_by_prompt_with_template(keyword)
-    print(answer)
+    logging.info(answer)
 
 
 
