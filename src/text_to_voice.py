@@ -1,13 +1,15 @@
 import os
+from enum import Enum
 from os.path import join, dirname
 from dotenv import load_dotenv
 from elevenlabs import generate, play, set_api_key, voices
+from gtts import gTTS
 
-# Dotenv setup
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
+from tmp import tmp_audio_path
 
-set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
+class VOICE_PROVIDER(Enum):
+    ELEVENLABS = "ELEVENLABS"
+    GTTS = "GTTS"
 
 def print_voices():
     available_voices = voices()
@@ -15,20 +17,27 @@ def print_voices():
     print(available_voices)
 
 
-def text_to_voice(input, filename="output.wav"):
-    audio = generate(
-        text=input,
-        voice="W5xFSFFgg8Y0CKoTQ5n8",
-        model="eleven_monolingual_v1"
-    )
+def text_to_voice(paper_id: str, input: str, voice_provider = VOICE_PROVIDER.GTTS):
+    if voice_provider == VOICE_PROVIDER.GTTS:
+        tts = gTTS(input)
+        tts.save(tmp_audio_path(paper_id))
+    else:
+        # Dotenv setup
+        dotenv_path = join(dirname(__file__), '.env')
+        load_dotenv(dotenv_path)
 
-    # Assuming 'audio' is a byte stream
-    with open(filename, 'wb') as f:
-        f.write(audio)
+        set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
 
-    return filename, audio
+        audio = generate(
+            text=input,
+            voice="W5xFSFFgg8Y0CKoTQ5n8",
+            model="eleven_monolingual_v1"
+        )
+
+        # Assuming 'audio' is a byte stream
+        with open(tmp_audio_path(paper_id), 'wb') as f:
+            f.write(audio)
 
 
 if __name__ == "__main__":
-    filename, audio = text_to_voice("Write a video script for a short, informative, scientific video based on this scientific paper.")
-    play(audio)
+    filename = text_to_voice("1706.03762", "Write a video script for a short, informative, scientific video based on this scientific paper.")
