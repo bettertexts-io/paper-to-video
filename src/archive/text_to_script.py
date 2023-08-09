@@ -2,7 +2,8 @@
 ## Objective: build a script based on a paper text
 
 import os
-from os.path import join, dirname
+from os.path import dirname, join
+
 from dotenv import load_dotenv
 from langchain import LLMChain, PromptTemplate
 from langchain.chat_models import ChatOpenAI

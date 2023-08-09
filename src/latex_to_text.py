@@ -1,5 +1,7 @@
 from pylatexenc.latex2text import LatexNodes2Text
+
 from paper_loader import arxiv_id_to_latex
+
 
 def extract_text_from_latex(latex_code):
     l2t = LatexNodes2Text()

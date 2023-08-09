@@ -1,8 +1,10 @@
 import io
+
 from pdfminer.converter import TextConverter
-from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.layout import LAParams
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+
 
 def pdf_to_text(path):
     resource_manager = PDFResourceManager()

@@ -1,11 +1,12 @@
 import os
 from enum import Enum
+
 from langchain import PromptTemplate
-from langchain.schema import Document
+from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
-from langchain.chains.question_answering import load_qa_chain
+from langchain.schema import Document
 from langchain.vectorstores import Chroma
 
 from constants import *
@@ -16,8 +17,9 @@ llm = ChatOpenAI(
     model_name="gpt-4",
     # Prevent creativity
     temperature=0,
-    max_tokens=4096
+    max_tokens=4096,
 )
+
 
 class EmbeddingsType(Enum):
     OPENSOURCE = "OPENSOURCE"
@@ -43,6 +45,8 @@ Craft a structured script with a narrator and scene descriptions. Avoid introduc
 """
 Vectorize the paper in Chroma vector store using the given embedding function
 """
+
+
 def vectorize_latex_in_chroma(latex_input: str):
     # split it into chunks
     sections = chunk_latex_into_sections(latex_input)
@@ -50,7 +54,7 @@ def vectorize_latex_in_chroma(latex_input: str):
     docs = []
     for section in sections:
         plain_text = extract_text_from_latex(section)
-        cleaned_text = plain_text.strip().replace('\n', '')
+        cleaned_text = plain_text.strip().replace("\n", "")
 
         doc = Document(
             page_content=cleaned_text,
@@ -58,13 +62,15 @@ def vectorize_latex_in_chroma(latex_input: str):
         )
 
         docs.append(doc)
-    
+
     # load it into Chroma
-    db = Chroma.from_documents(docs, embedding_function, persist_directory="../chroma_db")
+    db = Chroma.from_documents(
+        docs, embedding_function, persist_directory="../chroma_db"
+    )
     db.persist()
 
 
-def query_chroma(input: str, number_of_results = 5):
+def query_chroma(input: str, number_of_results=5):
     # Load chroma
     db = Chroma(persist_directory="../chroma_db", embedding_function=embedding_function)
 
@@ -83,7 +89,9 @@ def query_chroma_by_prompt(question: str):
     return chain.run(input_documents=docs, question=question)
 
 
-def query_chroma_by_prompt_with_template(question: str, prompt_template: str = DEFAULT_CONTEXT_PROMPT):
+def query_chroma_by_prompt_with_template(
+    question: str, prompt_template: str = DEFAULT_CONTEXT_PROMPT
+):
     # Load chroma
     docs = query_chroma(question, 2)
 
@@ -92,7 +100,9 @@ def query_chroma_by_prompt_with_template(question: str, prompt_template: str = D
     )
     chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
 
-    result = chain({"input_documents": docs, "question": question}, return_only_outputs=True)
+    result = chain(
+        {"input_documents": docs, "question": question}, return_only_outputs=True
+    )
     return result["output_text"]
 
 
@@ -107,7 +117,3 @@ if __name__ == "__main__":
 
     answer = query_chroma_by_prompt_with_template(keyword)
     logging.info(answer)
-
-
-
-

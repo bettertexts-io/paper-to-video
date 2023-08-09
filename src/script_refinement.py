@@ -3,12 +3,15 @@ import textwrap
 import time
 
 from langchain import PromptTemplate
-from answer_as_json import answer_as_json
-from chroma import query_chroma, query_chroma_by_prompt, query_chroma_by_prompt_with_template
-from script import ScriptSection
 from langchain.chat_models import ChatOpenAI
-from script import script_scene_schema
 
+from answer_as_json import answer_as_json
+from chroma import (
+    query_chroma,
+    query_chroma_by_prompt,
+    query_chroma_by_prompt_with_template,
+)
+from script import ScriptSection, script_scene_schema
 
 
 def generate_script(barebone_script_json: dict):
@@ -26,7 +29,7 @@ def generate_script(barebone_script_json: dict):
         section_script = query_chroma_by_prompt_with_template(title)
 
         # Remove the special characters
-        section_script = section_script.replace('\n', ' ').replace('\\', '')
+        section_script = section_script.replace("\n", " ").replace("\\", "")
 
         # Write the script back to the section in the dictionary
         section["script"] = section_script
@@ -39,21 +42,19 @@ def generate_script(barebone_script_json: dict):
 
 def enrich_script_with_resources(section_script: list):
     enriched_scripts = []
-    
+
     for script in section_script:
         # For simplicity, let's assume chroma also has access to relevant resources.
         resource_prompt = f"Based on the content:\n\n{script}\n\nCan you suggest visual resources or cues to enhance this section for a video presentation?"
         suggested_resources = query_chroma_by_prompt(resource_prompt)
-        
-        enriched_section = {
-            "script": script,
-            "resources": suggested_resources
-        }
-        
+
+        enriched_section = {"script": script, "resources": suggested_resources}
+
         enriched_scripts.append(enriched_section)
         time.sleep(15)  # Sleep for 15 seconds between requests
-    
+
     return enriched_scripts
+
 
 def generate_script_scenes(section: ScriptSection):
     """
@@ -65,8 +66,8 @@ def generate_script_scenes(section: ScriptSection):
     docs = query_chroma_by_prompt(section["title"])
     print(docs)
 
-
-    text_template = textwrap.dedent("""
+    text_template = textwrap.dedent(
+        """
         ---INSTRUCTIONS---
         You are tasked to create a video scenes from a section description and some context documents. Scenes represent a change of the displayed content in a video.
         
@@ -85,17 +86,20 @@ def generate_script_scenes(section: ScriptSection):
                                     
         ---Relevant document snippets---
         {relevant_docs}
-    """)
-    
-    prompt_template = PromptTemplate.from_template(template=text_template)
-
-    llm = ChatOpenAI(
-        model_name="gpt-4",
-        temperature=0.6,
-        max_tokens=4096
+    """
     )
 
-    answer_obj = answer_as_json(llm=llm, question=prompt_template.format(section_context=section["context"], relevant_docs=str(docs)), schema=script_scene_schema)
+    prompt_template = PromptTemplate.from_template(template=text_template)
+
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0.6, max_tokens=4096)
+
+    answer_obj = answer_as_json(
+        llm=llm,
+        question=prompt_template.format(
+            section_context=section["context"], relevant_docs=str(docs)
+        ),
+        schema=script_scene_schema,
+    )
 
     return answer_obj["scenes"]
 
@@ -104,4 +108,3 @@ if __name__ == "__main__":
     # Read sample string from txt file
 
     print("generate_script")
-        

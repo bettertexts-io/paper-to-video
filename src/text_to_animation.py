@@ -1,6 +1,7 @@
 from manim import *
 from manim import config
 
+
 class TextScene(Scene):
     def __init__(self, text):
         super().__init__()
@@ -10,6 +11,7 @@ class TextScene(Scene):
         text_obj = Text(self.text)
         self.play(Write(text_obj))
         self.wait(2)
+
 
 class MathTexScene(Scene):
     def __init__(self, equation):
@@ -21,11 +23,10 @@ class MathTexScene(Scene):
         self.play(Write(equation_obj))
         self.wait(2)
 
+
 # Mapping of annotation to scene
-scene_dict = {
-    "text": TextScene,
-    "mathtex": MathTexScene
-}
+scene_dict = {"text": TextScene, "mathtex": MathTexScene}
+
 
 def create_scene(input_script):
     output_files = []
@@ -35,18 +36,19 @@ def create_scene(input_script):
             scene = SceneClass(sentence)
 
             # set custom output file name
-            output_file = f"./media/videos/1080p60/partial_movie_files/{sentence.replace(' ', '_')}.mp4"  
-            config['output_file'] = output_file
+            output_file = f"./media/videos/1080p60/partial_movie_files/{sentence.replace(' ', '_')}.mp4"
+            config["output_file"] = output_file
 
             scene.render()  # Manim renders the scene upon calling this method
 
             # Add generated mp4 file to the list
             output_files.append(output_file)
-            
+
         else:
             print(f"No scene found for annotation {annotation}")
 
     return output_files
+
 
 if __name__ == "__main__":
     # Example usage

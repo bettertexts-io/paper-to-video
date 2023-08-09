@@ -1,5 +1,7 @@
 from transformers import pipeline
+
 from paper_loader import arxiv_id_to_latex
+
 
 def summarize_text(text):
     summarizer = pipeline('summarization')

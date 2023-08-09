@@ -1,12 +1,12 @@
 from typing import NamedTuple, Optional
 
-
 # class TextScriptScene(NamedTuple):
 #     type = "ANIMATION"
 #     title: str
 #     context: str
 #     manimScript: str
 #     speakerScript: str
+
 
 class TextScriptScene(NamedTuple):
     type = "TEXT"
@@ -20,29 +20,33 @@ class ScriptSection(NamedTuple):
     context: str
     scenes: Optional[list[TextScriptScene]]
 
+
 class Script(NamedTuple):
     sections: list[ScriptSection]
 
+
 def script_schema(exclude_scenes: bool = False):
     schema = {
-      "properties": {
-          "sections": {
-              "type": "array",
-              "items": {
-                  "type": "object",
-                  "properties": {
-                      "title": {"type": "string"},
-                      "context": {"type": "string"},
-                  },
-                  "required": ["title", "context"]
-              }
-          }
-      },
-      "required": ["sections"]
+        "properties": {
+            "sections": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string"},
+                        "context": {"type": "string"},
+                    },
+                    "required": ["title", "context"],
+                },
+            }
+        },
+        "required": ["sections"],
     }
 
-    if(not exclude_scenes):
-        schema["properties"]["sections"]["items"]["properties"]["scenes"] = script_scene_schema
+    if not exclude_scenes:
+        schema["properties"]["sections"]["items"]["properties"][
+            "scenes"
+        ] = script_scene_schema
 
     return schema
 
@@ -50,26 +54,17 @@ def script_schema(exclude_scenes: bool = False):
 script_scene_schema = {
     "properties": {
         "scenes": {
-        "type": "array",
-        "items": {
-            "type": "object",
-            "properties": {
-                "type": {
-                    "type": "string",
-                    "const": "TEXT"
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {"type": "string", "const": "TEXT"},
+                    "title": {"type": "string"},  # Changed "shortTitle" to "title"
+                    "speakerScript": {"type": "string"},
+                    "stockFootageQuery": {"type": "string"},
                 },
-                "title": {   # Changed "shortTitle" to "title"
-                    "type": "string"
-                },
-                "speakerScript": {
-                    "type": "string"
-                },
-                "stockFootageQuery": {
-                    "type": "string"
-                }
+                "required": ["type", "title", "speakerScript", "stockFootageQuery"],
             },
-            "required": ["type", "title", "speakerScript", "stockFootageQuery"]
-            }
         }
     }
 }

@@ -1,16 +1,15 @@
 import textwrap
 from typing import Dict
+
 from langchain import PromptTemplate
+from langchain.chat_models import ChatOpenAI
+
 from answer_as_json import answer_as_json
 from constants import OPENAI_API_KEY
-from langchain.chat_models import ChatOpenAI
 from script import script_schema
 
-llm = ChatOpenAI(
-    model_name="gpt-4",
-    temperature=0.6,
-    max_tokens=4096
-)
+llm = ChatOpenAI(model_name="gpt-4", temperature=0.6, max_tokens=4096)
+
 
 def generate_barebone_script(summary: str) -> Dict[str, any]:
     """
@@ -22,7 +21,8 @@ def generate_barebone_script(summary: str) -> Dict[str, any]:
     Returns:
     - dict: A dictionary containing structured video script sections.
     """
-    text_template = textwrap.dedent("""
+    text_template = textwrap.dedent(
+        """
         ---INSTRUCTIONS---
         Create a structured and engaging barebone video script. Prioritize the following guidelines:
         - Convert the below summary into video sections.
@@ -34,10 +34,15 @@ def generate_barebone_script(summary: str) -> Dict[str, any]:
 
         ---SUMMARY---
         {summary}
-    """)
-    
+    """
+    )
+
     prompt_template = PromptTemplate.from_template(template=text_template)
 
-    answer_obj = answer_as_json(llm=llm, question=prompt_template.format(summary=summary), schema=script_schema(exclude_scenes=True))
+    answer_obj = answer_as_json(
+        llm=llm,
+        question=prompt_template.format(summary=summary),
+        schema=script_schema(exclude_scenes=True),
+    )
 
     return answer_obj
