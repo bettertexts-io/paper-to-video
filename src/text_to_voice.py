@@ -1,13 +1,16 @@
 import os
 from enum import Enum
 from os.path import dirname, join
+import tempfile
+import json
+
 
 from dotenv import load_dotenv
 
 # from elevenlabs import generate, play, set_api_key, voices
 from gtts import gTTS
 
-from script import Script, ScriptSection
+from script import Script, ScriptSection, TextScriptScene, for_every_scene
 from tmp import (
     create_directories_from_path,
     tmp_content_scene_dir_path,
@@ -15,6 +18,9 @@ from tmp import (
     tmp_saver,
 )
 
+import aeneas
+from aeneas.executetask import ExecuteTask
+from aeneas.task import Task
 
 class VOICE_PROVIDER(Enum):
     ELEVENLABS = "ELEVENLABS"
@@ -50,13 +56,10 @@ def text_to_voice(
         # with open(output_path, 'wb') as f:
         #     f.write(audio)
 
-
 def generate_script_audio_pieces(paper_id: str, script: Script):
-    paths = []
-    for section_id, section in enumerate(script["sections"]):
-        for index, scene in enumerate(section["scenes"]):
+    def _process_scene(context: [int, int], scene: TextScriptScene):
             sceneDir = tmp_content_scene_dir_path(
-                paper_id=paper_id, section_id=section_id, scene_id=index
+                paper_id=paper_id, section_id=context[0], scene_id=context[1]
             )
             create_directories_from_path(sceneDir)
 
@@ -66,13 +69,55 @@ def generate_script_audio_pieces(paper_id: str, script: Script):
                     paper_id=paper_id, input=scene["speakerScript"], output_path=path
                 )
 
-            paths.append(path)
+            return path
 
-    return paths
+    return for_every_scene(script, _process_scene)
 
+def align_audio_with_text(audio_path, text_content):
+    # Configuration string for the task
+    config_string = "task_language=eng|os_task_file_format=json|is_text_type=plain"
+
+    word_by_word_text = "\n".join(text_content.split())
+
+
+    # Create a Task object
+    task = Task(config_string=config_string)
+    task.audio_file_path_absolute = audio_path
+
+    # Create a temporary file to store the text content
+    with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".txt") as temp_file:
+        temp_file.write(word_by_word_text)
+        text_file_path = temp_file.name
+
+    task.text_file_path_absolute = text_file_path
+
+    # Output file (can be deleted later if needed)
+    output_file = tempfile.mktemp(suffix=".json")
+    task.sync_map_file_path_absolute = output_file
+
+    # Process the task
+    ExecuteTask(task).execute()
+    task.output_sync_map_file()
+
+    # Load the resulting alignment from the output JSON
+    alignments = []
+    with open(output_file, 'r') as f:
+        data = json.load(f)
+        for fragment in data['fragments']:
+            start_time = float(fragment['begin'])
+            end_time = float(fragment['end'])
+            text_fragment = fragment['lines'][0]
+            alignments.append((start_time, end_time, text_fragment))
+
+    # Cleanup temp files
+    os.remove(text_file_path)
+    os.remove(output_file)
+
+    return alignments
 
 if __name__ == "__main__":
-    filename = text_to_voice(
-        "1706.03762",
-        "Write a video script for a short, informative, scientific video based on this scientific paper.",
-    )
+    audio_file = "tmp/1706.03762/contentPieces/0/0/audio.mp3"
+    speaker_script = "The paper 'Attention Is All You Need' introduces a new network architecture, the Transformer, which relies solely on attention mechanisms and does not use recurrent or convolutional neural networks."
+    
+    results = align_audio_with_text(audio_file, speaker_script)
+    print(results)

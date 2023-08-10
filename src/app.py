@@ -12,8 +12,9 @@ from langchain_summarize import (
     summarize_by_map_reduce,
     summarize_by_refine,
 )
-from paper_loader import arxiv_id_to_latex
+from paper_loader import paper_id_to_latex
 from script_refinement import generate_script, generate_script_scenes
+from stock_footage import generate_stock_footage
 from summary_to_script import generate_barebone_script
 from text_to_voice import generate_script_audio_pieces, text_to_voice
 from tmp import tmp_loader, tmp_path, tmp_saver
@@ -25,12 +26,12 @@ load_dotenv()
 SKIP_VECTORIZATION = True
 
 
-def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
+def paper_2_video(paper_id, MOCK_SUMMARY=None):
     try:
-        print(f"Fetching paper with id {arxiv_id}")
-        latex = arxiv_id_to_latex(arxiv_id)
+        print(f"Fetching paper with id {paper_id}")
+        latex = paper_id_to_latex(paper_id)
     except Exception as e:
-        print(f"Failed to fetch the paper with id {arxiv_id}: {e}")
+        print(f"Failed to fetch the paper with id {paper_id}: {e}")
         return
 
     try:
@@ -45,12 +46,12 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
     try:
         # Summarize the paper using langchain map_reduce summarization
         # The summary includes a list of the sections of the paper at the end
-        summary = tmp_loader(paper_id=arxiv_id, kind="summary", save_type="str")
+        summary = tmp_loader(paper_id=paper_id, kind="summary", save_type="str")
 
         if summary is None:
             print(f"Generating summary")
             summary = summarize_by_map_reduce(latex, LATEX_SUMMARY_WITH_SECTIONS_PROMPT)
-            tmp_saver(paper_id=arxiv_id, kind="summary", data=summary, save_type="str")
+            tmp_saver(paper_id=paper_id, kind="summary", data=summary, save_type="str")
         else:
             print("Using cached summary")
 
@@ -62,7 +63,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
         # Check the path for the barebone script
 
         barebone_script_json = tmp_loader(
-            paper_id=arxiv_id, kind="barebone_script", save_type="json"
+            paper_id=paper_id, kind="barebone_script", save_type="json"
         )
 
         if barebone_script_json is None:
@@ -70,7 +71,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
             # Turn the summary into a barebone video script structure with approximated lengths of the sections
             barebone_script_json = generate_barebone_script(summary)
             tmp_saver(
-                paper_id=arxiv_id,
+                paper_id=paper_id,
                 kind="barebone_script",
                 data=barebone_script_json,
                 save_type="json",
@@ -84,7 +85,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
     try:
         # Define the path for the enriched script
         script_with_scenes = tmp_loader(
-            paper_id=arxiv_id, kind="script_with_scenes", save_type="json"
+            paper_id=paper_id, kind="script_with_scenes", save_type="json"
         )
 
         # Otherwise, generate the enriched script and store it
@@ -102,7 +103,7 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
 
             print(script_with_scenes)
             tmp_saver(
-                paper_id=arxiv_id,
+                paper_id=paper_id,
                 kind="script_with_scenes",
                 data=script_with_scenes,
                 save_type="json",
@@ -120,20 +121,26 @@ def paper_2_video(arxiv_id, MOCK_SUMMARY=None):
 
         print(f"Generating script audio pieces")
         audio_paths = generate_script_audio_pieces(
-            paper_id=arxiv_id, script=script_with_scenes
+            paper_id=paper_id, script=script_with_scenes
         )
 
     except Exception as e:
         print(f"Failed to create video: {e}")
+        return
+    
+    try: 
+        stock_footage_paths = generate_stock_footage(paper_id=paper_id, script=script_with_scenes)
+    except Exception as e:
+        print(f"Failed to generate stock footage: {e}")
         return
 
     try:
         # Convert audio pieces into video
         print(f"Generating video")
         render_vid(
-            animation_filenames=[],
+            animation_filenames=stock_footage_paths,
             voice_filenames=audio_paths,
-            output_filename=tmp_path(paper_id=arxiv_id, kind="output"),
+            output_filename=tmp_path(paper_id=paper_id, kind="output"),
         )
     except Exception as e:
         print(f"Failed to create video: {e}")

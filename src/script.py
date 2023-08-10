@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional
+from typing import Callable, NamedTuple, Optional
 
 # class TextScriptScene(NamedTuple):
 #     type = "ANIMATION"
@@ -13,6 +13,7 @@ class TextScriptScene(NamedTuple):
     title: str
     speakerScript: str
     stockFootageQuery: str
+    memeSearchTerm: str
 
 
 class ScriptSection(NamedTuple):
@@ -23,6 +24,15 @@ class ScriptSection(NamedTuple):
 
 class Script(NamedTuple):
     sections: list[ScriptSection]
+
+def for_every_scene(script: Script, func: Callable[[[int, int], TextScriptScene], None]) -> [any]:
+    ret = []
+    for i, section in enumerate(script["sections"]):
+        if section["scenes"]:  # Ensure there are scenes to process
+            for j, scene in enumerate(section["scenes"]):
+                ret.append(func([i,j], scene))
+
+    return ret
 
 
 def script_schema(exclude_scenes: bool = False):
@@ -62,6 +72,7 @@ script_scene_schema = {
                     "title": {"type": "string"},  # Changed "shortTitle" to "title"
                     "speakerScript": {"type": "string"},
                     "stockFootageQuery": {"type": "string"},
+                    "memeSearchTerm": {"type": "string"},
                 },
                 "required": ["type", "title", "speakerScript", "stockFootageQuery"],
             },

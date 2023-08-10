@@ -1,6 +1,6 @@
 from transformers import pipeline
 
-from paper_loader import arxiv_id_to_latex
+from paper_loader import paper_id_to_latex
 
 
 def summarize_text(text):
@@ -11,6 +11,6 @@ def summarize_text(text):
 
 if __name__ == "__main__":
       # Text to be summarized
-      text = arxiv_id_to_latex("1706.03762")
+      text = paper_id_to_latex("1706.03762")
 
       print(summarize_text(text))

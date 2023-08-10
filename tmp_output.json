@@ -1,0 +1,14 @@
+{
+ "fragments": [
+  {
+   "begin": "0.000",
+   "children": [],
+   "end": "16.080",
+   "id": "f000001",
+   "language": "eng",
+   "lines": [
+    "The paper 'Attention Is All You Need' introduces a new network architecture, the Transformer, which relies solely on attention mechanisms and does not use recurrent or convolutional neural networks."
+   ]
+  }
+ ]
+}

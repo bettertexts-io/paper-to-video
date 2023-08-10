@@ -13,7 +13,7 @@ import requests
 from tmp import tmp_loader, tmp_path, tmp_saver
 
 
-def arxiv_id_to_latex(paper_id: str) -> str:
+def paper_id_to_latex(paper_id: str) -> str:
     """Example id: 1706.03762"""
 
     latex = tmp_loader(paper_id=paper_id, kind="latex", save_type="str")

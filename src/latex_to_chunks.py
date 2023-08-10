@@ -1,6 +1,6 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from paper_loader import arxiv_id_to_latex
+from paper_loader import paper_id_to_latex
 
 
 def chunk_latex_into_sections(latex_input: str):
@@ -24,7 +24,7 @@ def chunk_latex_into_docs(latex_input: str):
 
 if __name__ == "__main__":
     # load the document
-    paper_content = arxiv_id_to_latex("1706.03762")
+    paper_content = paper_id_to_latex("1706.03762")
 
     chunks = chunk_latex_into_sections(paper_content)
     print(chunks)

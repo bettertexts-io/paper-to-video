@@ -105,5 +105,3 @@ def create_directories_from_path(path):
         if not os.path.exists(current_path):
             os.makedirs(current_path)
             print(f"Created: {current_path}")
-        else:
-            print(f"Exists: {current_path}")

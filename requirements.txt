@@ -31,3 +31,4 @@ chromadb
 sentence_transformers
 moviepy
 imageio_ffmpeg
+aeneas

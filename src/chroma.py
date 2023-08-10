@@ -108,7 +108,7 @@ def query_chroma_by_prompt_with_template(
 
 if __name__ == "__main__":
     # # load a sample paper
-    # paper_content = arxiv_id_to_latex("1706.03762")
+    # paper_content = paper_id_to_latex("1706.03762")
 
     # vectorize_latex_in_chroma(paper_content)
 

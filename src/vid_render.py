@@ -15,6 +15,10 @@ def render_vid(
     videos = [VideoFileClip(animation) for animation in animation_filenames]
     audios = [AudioFileClip(voice) for voice in voice_filenames]
 
+    for i in range(len(videos)):
+        videos[i].duration = audios[i].duration
+        videos[i].set_fps(24)
+
     # Calculate total duration of video videos and audio clip
     if len(videos) != 0:
         video_duration = sum(clip.duration for clip in videos)
@@ -35,12 +39,11 @@ def render_vid(
             1
         )  # 1 second cross dissolve in and out
         videos.append(black_clip)
-        final_duration = audio_duration
-    else:
-        final_duration = video_duration
+
+    final_duration = audio_duration
 
     # Concatenate all video videos
-    concatenated_video = concatenate_videoclips(videos)
+    concatenated_video = concatenate_videoclips(videos, method="compose")
     concatenated_audio = concatenate_audioclips(audios)
 
     # Set the audio of the final clip to the voice
