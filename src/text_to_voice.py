@@ -1,3 +1,4 @@
+from typing import List, Tuple
 import os
 from enum import Enum
 from os.path import dirname, join
@@ -16,6 +17,7 @@ from tmp import (
     tmp_content_scene_dir_path,
     tmp_path,
     tmp_saver,
+    tmp_scene_path,
 )
 
 import aeneas
@@ -57,23 +59,28 @@ def text_to_voice(
         #     f.write(audio)
 
 def generate_script_audio_pieces(paper_id: str, script: Script):
-    def _process_scene(context: [int, int], scene: TextScriptScene):
+    def _process_scene(context: Tuple[int, int], scene: TextScriptScene):
             sceneDir = tmp_content_scene_dir_path(
                 paper_id=paper_id, section_id=context[0], scene_id=context[1]
             )
+            audio_path = tmp_scene_path(paper_id, context[0], context[1], "audio")
+            alignment_path = tmp_scene_path(paper_id, context[0], context[1], "text_alignments")
+
             create_directories_from_path(sceneDir)
 
-            path = sceneDir + "/audio.mp3"
-            if not os.path.exists(path):
+            if not os.path.exists(audio_path):
                 text_to_voice(
-                    paper_id=paper_id, input=scene["speakerScript"], output_path=path
+                    paper_id=paper_id, input=scene["speakerScript"], output_path=audio_path
                 )
 
-            return path
+            if not os.path.exists(alignment_path):
+                align_audio_with_text(audio_path, scene["speakerScript"], alignment_path)
+
+            return audio_path
 
     return for_every_scene(script, _process_scene)
 
-def align_audio_with_text(audio_path, text_content):
+def align_audio_with_text(audio_path, text_content, output_path):
     # Configuration string for the task
     config_string = "task_language=eng|os_task_file_format=json|is_text_type=plain"
 
@@ -92,8 +99,7 @@ def align_audio_with_text(audio_path, text_content):
     task.text_file_path_absolute = text_file_path
 
     # Output file (can be deleted later if needed)
-    output_file = tempfile.mktemp(suffix=".json")
-    task.sync_map_file_path_absolute = output_file
+    task.sync_map_file_path_absolute = output_path
 
     # Process the task
     ExecuteTask(task).execute()
@@ -101,7 +107,7 @@ def align_audio_with_text(audio_path, text_content):
 
     # Load the resulting alignment from the output JSON
     alignments = []
-    with open(output_file, 'r') as f:
+    with open(output_path, 'r') as f:
         data = json.load(f)
         for fragment in data['fragments']:
             start_time = float(fragment['begin'])
@@ -111,13 +117,14 @@ def align_audio_with_text(audio_path, text_content):
 
     # Cleanup temp files
     os.remove(text_file_path)
-    os.remove(output_file)
 
     return alignments
 
 if __name__ == "__main__":
     audio_file = "tmp/1706.03762/contentPieces/0/0/audio.mp3"
     speaker_script = "The paper 'Attention Is All You Need' introduces a new network architecture, the Transformer, which relies solely on attention mechanisms and does not use recurrent or convolutional neural networks."
+    output_path = "tmp/1706.03762/contentPieces/0/0/audio_alignments.json"
     
-    results = align_audio_with_text(audio_file, speaker_script)
+    results = align_audio_with_text(audio_file, speaker_script, output_path)
+    
     print(results)

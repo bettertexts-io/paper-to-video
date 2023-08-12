@@ -1,10 +1,11 @@
 import json
 import os
-from typing import Optional
+from typing import Optional, Literal
 
-tmp_dir_path = "tmp"
+tmp_dir_path = os.path.abspath("tmp")
 
-sub_paths = {
+
+tmp_sub_paths = {
     "archive": "arch.gz",
     "unarchDir": "unarch",
     "latex": "latex.tex",
@@ -17,15 +18,20 @@ sub_paths = {
     "output": "final.mp4",
 }
 
+tmp_scene_sub_paths = {
+    "audio": "audio.mp3",
+    "text_alignments": "audio_text_alignments.json",
+    "stock_footage": "stock_footage.mp4",
+    "caption_video": "caption_video.mp4",
+}
 
 def tmp_paper_dir_path(paper_id: str):
     if not paper_id:
         raise Exception("Invalid paper_id for tmp_dir_path " + str(paper_id))
 
-    return f"tmp/{paper_id}"
+    return f"{tmp_dir_path}/{paper_id}"
 
-
-def tmp_path(paper_id: str, kind: Optional[str]):
+def tmp_path(paper_id: str, kind: str):
     # create dir with a key of type type
     # only return the path
 
@@ -34,8 +40,19 @@ def tmp_path(paper_id: str, kind: Optional[str]):
     if not kind:
         return dir_path
 
-    if kind in sub_paths:
-        return f"{dir_path}/{sub_paths[kind]}"
+    if kind in tmp_sub_paths:
+        return f"{dir_path}/{tmp_sub_paths[kind]}"
+    else:
+        raise Exception("Invalid type for tmp_path " + str(kind))
+
+def tmp_scene_path(paper_id: str, section_id: int, scene_id: int, kind: Optional[str]):
+    dir_path = tmp_content_scene_dir_path(paper_id, section_id, scene_id)
+
+    if not kind:
+        return dir_path
+
+    if kind in tmp_scene_sub_paths:
+        return f"{dir_path}/{tmp_scene_sub_paths[kind]}"
     else:
         raise Exception("Invalid type for tmp_path " + str(kind))
 
@@ -93,15 +110,20 @@ def tmp_saver(paper_id: str, kind: Optional[str], data, save_type: Optional[str]
 
 
 def create_directories_from_path(path):
-    # Split the path into components based on '/'
-    components = path.split("/")
+    try:
+        # Split the path into components based on '/'
+        components = path.split("/")
 
-    # Build the path component by component
-    current_path = ""
-    for component in components:
-        current_path = os.path.join(current_path, component)
+        # Build the path component by component
+        current_path = ""
+        for component in components:
+            # Skip empty components
+            if component:
+                current_path = os.path.join(current_path, component)
 
-        # Check if the directory exists, if not create it
-        if not os.path.exists(current_path):
-            os.makedirs(current_path)
-            print(f"Created: {current_path}")
+                # Check if the directory exists, if not create it
+                if not os.path.exists(current_path):
+                    os.makedirs(current_path)
+                    print(f"Created: {current_path}")
+    except Exception as e:
+        print(f"Failed to create directories from path {path}: {e}")

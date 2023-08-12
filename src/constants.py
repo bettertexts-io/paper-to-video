@@ -21,3 +21,6 @@ MOCK_SUMMARY = """The paper "Attention Is All You Need" introduces a new network
 """
 
 print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
+
+
+VIDEO_FPS = 24

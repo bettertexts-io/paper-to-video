@@ -17,6 +17,7 @@ from paper_loader import paper_id_to_latex
 from script_refinement import generate_script, generate_script_scenes
 from stock_footage import generate_stock_footage
 from summary_to_script import generate_barebone_script
+from text_alignments_to_video import  generate_video_captions
 from text_to_voice import generate_script_audio_pieces, text_to_voice
 from tmp import tmp_loader, tmp_path, tmp_saver
 from vid_render import render_vid
@@ -126,13 +127,20 @@ def paper_2_video(paper_id, MOCK_SUMMARY=None):
         )
 
     except Exception as e:
-        print(f"Failed to create video: {e}")
+        print(f"Failed to generate audio pieces: {e}")
         return
     
     try: 
         stock_footage_paths = generate_stock_footage(paper_id=paper_id, script=script_with_scenes)
     except Exception as e:
         print(f"Failed to generate stock footage: {e}")
+        return
+    
+    try: 
+        print(f"Generating video captions")
+        video_caption_filenames = generate_video_captions(paper_id=paper_id, script=script_with_scenes)
+    except Exception as e:
+        print(f"Failed to generate video captions: {e}")
         return
 
     try:
@@ -141,6 +149,7 @@ def paper_2_video(paper_id, MOCK_SUMMARY=None):
         render_vid(
             animation_filenames=stock_footage_paths,
             voice_filenames=audio_paths,
+            video_caption_filenames=video_caption_filenames,
             output_filename=tmp_path(paper_id=paper_id, kind="output"),
         )
     except Exception as e:

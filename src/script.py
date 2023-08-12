@@ -1,4 +1,4 @@
-from typing import Callable, NamedTuple, Optional
+from typing import Any, Callable, List, NamedTuple, Optional
 
 # class TextScriptScene(NamedTuple):
 #     type = "ANIMATION"
@@ -25,7 +25,7 @@ class ScriptSection(NamedTuple):
 class Script(NamedTuple):
     sections: list[ScriptSection]
 
-def for_every_scene(script: Script, func: Callable[[[int, int], TextScriptScene], None]) -> [any]:
+def for_every_scene(script: Script, func: Callable[[[int, int], TextScriptScene], None]) -> List[Any]:
     ret = []
     for i, section in enumerate(script["sections"]):
         if section["scenes"]:  # Ensure there are scenes to process
