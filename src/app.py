@@ -118,9 +118,7 @@ def paper_2_video(paper_id, MOCK_SUMMARY=None):
         return
 
     try:
-        # Convert script into audio
-        # TODO: First chunk final script by 5000 chars
-
+        # Convert script into audio pieces
         print(f"Generating script audio pieces")
         audio_paths = generate_script_audio_pieces(
             paper_id=paper_id, script=script_with_scenes

@@ -8,7 +8,7 @@ import constants
 from constants import OPENAI_API_KEY
 from latex_to_chunks import chunk_latex_into_docs
 
-llm = ChatOpenAI(model_name="gpt-4", temperature=0.0)
+llm = ChatOpenAI(model_name="gpt-4", temperature=0)
 
 DEFAULT_PROMPT_TEMPLATE = """Please summarize the following content concisely while retaining the core ideas:
 
@@ -78,9 +78,6 @@ def summarize_by_map_reduce(text, map_prompt_template=None, combine_prompt_templ
     print(
         f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens"
     )
-
-    if prompt_template is None:
-        prompt_template = DEFAULT_PROMPT_TEMPLATE
 
     map_promopt = PromptTemplate(template=map_prompt_template, input_variables=["text"])
     combine_prompt = PromptTemplate(

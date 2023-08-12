@@ -7,7 +7,7 @@ from constants import OPENAI_API_KEY
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
-llm = ChatOpenAI(temperature=0.0)
+llm = ChatOpenAI(temperature=0)
 tools = load_tools(
     ["arxiv"],
 )

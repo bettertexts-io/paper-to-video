@@ -69,21 +69,19 @@ def generate_script_scenes(section: ScriptSection):
     text_template = textwrap.dedent(
         """
         ---INSTRUCTIONS---
-        You are tasked to create a video scenes from a section description and some context documents. Scenes represent a change of the displayed content in a video.
-        
-        Prioritize the following guidelines:
-        - Generate seperate scenes based on the given context description.
-        - Use the summary's content to derive at least 5 distinct video sections.
-        - Each section has different attributes, which will be used to generate the voice, image, caption components of the video.
-        - Optimize the scenes for viewer engagement without compromising accuracy.
-        - Be precise when it comes to the speakerScript it will be used to generate the voice component of the video.
-        - The stockFootageQuery will be used to query a stock footage database. Every scene can only have one stock image resource.
-        - There is currently only one possible scene type: TEXT
-        - Let the Narrator speak as the author of the paper. Avoid phrases like "the paper says" or "the author says".
+        You are tasked to create video scenes based on a given section description and context documents, following these specific guidelines:
+
+        - Divide the section context into at least 5 distinct scenes.
+        - Use the section context's content to structure the scenes, with each scene having attributes to generate voice, image, and caption components.
+        - Prepare a precise speakerScript for each scene, as this will be used to create the voice component of the video.
+        - For each scene, use a stockFootageQuery to select exactly one stock image resource.
+        - All scenes must be of the type TEXT.
+        - Craft the narration in the voice of the paper's author, excluding indirect references such as "the paper says" or "the author says."
+        - Optimize the scenes for viewer engagement, maintaining the factual accuracy of the content.
 
         ---Section context---
         {section_context}
-                                    
+
         ---Relevant document snippets---
         {relevant_docs}
     """
@@ -91,14 +89,13 @@ def generate_script_scenes(section: ScriptSection):
 
     prompt_template = PromptTemplate.from_template(template=text_template)
 
-    llm = ChatOpenAI(model_name="gpt-4", temperature=0.6, max_tokens=4096)
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0.7, max_tokens=4096)
 
     answer_obj = answer_as_json(
         llm=llm,
-        question=prompt_template.format(
-            section_context=section["context"], relevant_docs=str(docs)
-        ),
         schema=script_scene_schema,
+        prompt=prompt_template,
+        input=({'section_context': section["context"], 'relevant_docs': str(docs)}),
     )
 
     return answer_obj["scenes"]
