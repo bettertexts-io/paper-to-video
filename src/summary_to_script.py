@@ -8,7 +8,7 @@ from answer_as_json import answer_as_json
 from constants import OPENAI_API_KEY
 from script import script_schema
 
-llm = ChatOpenAI(model_name="gpt-4", temperature=0.6, max_tokens=4096)
+llm = ChatOpenAI(model_name="gpt-4", temperature=0.7, max_tokens=4096)
 
 
 def generate_barebone_script(summary: str) -> Dict[str, any]:

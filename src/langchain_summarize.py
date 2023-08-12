@@ -8,7 +8,7 @@ import constants
 from constants import OPENAI_API_KEY
 from latex_to_chunks import chunk_latex_into_docs
 
-llm = ChatOpenAI(model_name="gpt-4", temperature=0.0)
+llm = ChatOpenAI(model_name="gpt-4", temperature=0)
 
 DEFAULT_PROMPT_TEMPLATE = """Please summarize the following content concisely while retaining the core ideas:
 

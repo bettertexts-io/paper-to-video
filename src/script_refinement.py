@@ -91,7 +91,7 @@ def generate_script_scenes(section: ScriptSection):
 
     prompt_template = PromptTemplate.from_template(template=text_template)
 
-    llm = ChatOpenAI(model_name="gpt-4", temperature=0.6, max_tokens=4096)
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0.7, max_tokens=4096)
 
     answer_obj = answer_as_json(
         llm=llm,

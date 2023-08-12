@@ -7,7 +7,7 @@ import json
 
 from dotenv import load_dotenv
 
-# from elevenlabs import generate, play, set_api_key, voices
+from elevenlabs import generate, play, set_api_key, voices
 from gtts import gTTS
 
 from script import Script, ScriptSection, TextScriptScene, for_every_scene
@@ -44,17 +44,17 @@ def text_to_voice(
         dotenv_path = join(dirname(__file__), ".env")
         load_dotenv(dotenv_path)
 
-        # set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
+        set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
 
-        # audio = generate(
-        #     text=input,
-        #     voice="W5xFSFFgg8Y0CKoTQ5n8",
-        #     model="eleven_monolingual_v1"
-        # )
+        audio = generate(
+            text=input,
+            voice="W5xFSFFgg8Y0CKoTQ5n8",
+            model="eleven_monolingual_v1"
+        )
 
-        # # Assuming 'audio' is a byte stream
-        # with open(output_path, 'wb') as f:
-        #     f.write(audio)
+        # Assuming 'audio' is a byte stream
+        with open(output_path, 'wb') as f:
+            f.write(audio)
 
 def generate_script_audio_pieces(paper_id: str, script: Script):
     def _process_scene(context: [int, int], scene: TextScriptScene):
@@ -66,7 +66,7 @@ def generate_script_audio_pieces(paper_id: str, script: Script):
             path = sceneDir + "/audio.mp3"
             if not os.path.exists(path):
                 text_to_voice(
-                    paper_id=paper_id, input=scene["speakerScript"], output_path=path
+                    paper_id=paper_id, input=scene["speakerScript"], output_path=path, voice_provider=VOICE_PROVIDER.GTTS
                 )
 
             return path
