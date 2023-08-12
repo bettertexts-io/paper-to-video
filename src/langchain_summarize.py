@@ -8,7 +8,7 @@ import constants
 from constants import OPENAI_API_KEY
 from latex_to_chunks import chunk_latex_into_docs
 
-llm = ChatOpenAI(model_name="gpt-4", temperature=0.2, max_tokens=4096)
+llm = ChatOpenAI(model_name="gpt-4", temperature=0.0)
 
 DEFAULT_PROMPT_TEMPLATE = """Please summarize the following content concisely while retaining the core ideas:
 
@@ -17,7 +17,13 @@ DEFAULT_PROMPT_TEMPLATE = """Please summarize the following content concisely wh
 SUMMARY:
 """
 
-LATEX_SUMMARY_WITH_SECTIONS_PROMPT = """Summarize the following LaTeX academic paper. Exclude 'Conclusion', 'Bibliography', and 'References' sections. Include a list of other sections at the end of your answer:
+MAP_SUMMARY_PROMPT = """
+ Write a concise summary of the following:
+ "{text}"
+ CONCISE SUMMARY:
+ """
+
+COMBINE_SUMMARY_PROMPT = """Summarize the following LaTeX academic paper. Exclude 'Conclusion', 'Bibliography', and 'References' sections. Include a list of other sections at the end of your answer:
 
 {text}
 
@@ -63,7 +69,7 @@ Summarize a text input by using the langchain map_reduce summarization chain.
 """
 
 
-def summarize_by_map_reduce(text, prompt_template=None):
+def summarize_by_map_reduce(text, map_prompt_template=None, combine_prompt_template=None):
     docs = chunk_latex_into_docs(text)
 
     num_docs = len(docs)
@@ -76,9 +82,12 @@ def summarize_by_map_reduce(text, prompt_template=None):
     if prompt_template is None:
         prompt_template = DEFAULT_PROMPT_TEMPLATE
 
-    PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])
+    map_promopt = PromptTemplate(template=map_prompt_template, input_variables=["text"])
+    combine_prompt = PromptTemplate(
+        template=combine_prompt_template, input_variables=["text"]
+    )
 
     # removed prompt cause it's no longer supported
-    summary_chain = load_summarize_chain(llm=llm, chain_type="map_reduce")
+    summary_chain = load_summarize_chain(llm=llm, chain_type="map_reduce", map_prompt=map_promopt, combine_prompt=combine_prompt)
 
     return summary_chain.run(docs)

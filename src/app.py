@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 from chroma import vectorize_latex_in_chroma
 from constants import MOCK_SUMMARY
 from langchain_summarize import (
+    COMBINE_SUMMARY_PROMPT,
     CRAFT_SCRIPT_PROMPT,
-    LATEX_SUMMARY_WITH_SECTIONS_PROMPT,
+    MAP_SUMMARY_PROMPT,
     summarize_by_map_reduce,
     summarize_by_refine,
 )
@@ -50,7 +51,7 @@ def paper_2_video(paper_id, MOCK_SUMMARY=None):
 
         if summary is None:
             print(f"Generating summary")
-            summary = summarize_by_map_reduce(latex, LATEX_SUMMARY_WITH_SECTIONS_PROMPT)
+            summary = summarize_by_map_reduce(latex, MAP_SUMMARY_PROMPT, COMBINE_SUMMARY_PROMPT)
             tmp_saver(paper_id=paper_id, kind="summary", data=summary, save_type="str")
         else:
             print("Using cached summary")
