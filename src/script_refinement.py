@@ -93,10 +93,9 @@ def generate_script_scenes(section: ScriptSection):
 
     answer_obj = answer_as_json(
         llm=llm,
-        question=prompt_template.format(
-            section_context=section["context"], relevant_docs=str(docs)
-        ),
         schema=script_scene_schema,
+        prompt=prompt_template,
+        input=({'section_context': section["context"], 'relevant_docs': str(docs)}),
     )
 
     return answer_obj["scenes"]

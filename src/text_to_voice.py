@@ -66,7 +66,7 @@ def generate_script_audio_pieces(paper_id: str, script: Script):
             path = sceneDir + "/audio.mp3"
             if not os.path.exists(path):
                 text_to_voice(
-                    paper_id=paper_id, input=scene["speakerScript"], output_path=path, voice_provider=VOICE_PROVIDER.GTTS
+                    paper_id=paper_id, input=scene["speakerScript"], output_path=path, voice_provider=VOICE_PROVIDER.ELEVENLABS
                 )
 
             return path

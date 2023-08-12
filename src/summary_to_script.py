@@ -33,16 +33,18 @@ def generate_barebone_script(summary: str) -> Dict[str, any]:
         - Avoid adding captions or image references at this stage.
 
         ---SUMMARY---
-        {summary}
+        {input}
     """
     )
 
     prompt_template = PromptTemplate.from_template(template=text_template)
+    schema = script_schema(exclude_scenes=True)
 
     answer_obj = answer_as_json(
         llm=llm,
-        question=prompt_template.format(summary=summary),
-        schema=script_schema(exclude_scenes=True),
+        schema=schema,
+        prompt=prompt_template,
+        input=summary
     )
 
     return answer_obj

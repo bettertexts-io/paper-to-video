@@ -79,9 +79,6 @@ def summarize_by_map_reduce(text, map_prompt_template=None, combine_prompt_templ
         f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens"
     )
 
-    if prompt_template is None:
-        prompt_template = DEFAULT_PROMPT_TEMPLATE
-
     map_promopt = PromptTemplate(template=map_prompt_template, input_variables=["text"])
     combine_prompt = PromptTemplate(
         template=combine_prompt_template, input_variables=["text"]

@@ -37,6 +37,7 @@ def for_every_scene(script: Script, func: Callable[[[int, int], TextScriptScene]
 
 def script_schema(exclude_scenes: bool = False):
     schema = {
+        "type": "object",
         "properties": {
             "sections": {
                 "type": "array",
@@ -62,6 +63,7 @@ def script_schema(exclude_scenes: bool = False):
 
 
 script_scene_schema = {
+    "type": "object",
     "properties": {
         "scenes": {
             "type": "array",
