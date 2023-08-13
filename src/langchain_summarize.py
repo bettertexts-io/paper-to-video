@@ -23,9 +23,18 @@ MAP_SUMMARY_PROMPT = """
  CONCISE SUMMARY:
  """
 
-COMBINE_SUMMARY_PROMPT = """Summarize the following LaTeX academic paper. Exclude 'Conclusion', 'Bibliography', and 'References' sections. Include a list of other sections at the end of your answer:
+COMBINE_SUMMARY_PROMPT = """Please provide a summary of the following LaTeX academic paper, adhering to the structure outlined below. Make sure to omit the 'Conclusion', 'Bibliography', and 'References' sections. Focus on summarizing the 'Introduction', 3-4 main sections, and then provide an end summary. Include a list of the other sections at the end of your response:
 
 {text}
+
+SUMMARY STRUCTURE:
+1. Introduction: Provide an overview of the topic, objectives, and background.
+2. Main Section 1: Detail the first key area or research question.
+3. Main Section 2: Summarize the second major theme or methodology.
+4. Main Section 3: Explain the third critical point or findings.
+5. (Optional) Main Section 4: If present, describe the fourth significant aspect.
+6. End Summary: Conclude with the key insights, applications, or implications.
+7. Other Sections: List any additional sections found in the paper that were not summarized.
 
 SUMMARY WITH SECTIONS:
 """

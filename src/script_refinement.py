@@ -61,29 +61,27 @@ def generate_script_scenes(section: ScriptSection):
     Given the script of a section, generate a list of scenes for the video.
     """
 
-    scenes = []
-
     docs = query_chroma_by_prompt(section["title"])
     print(docs)
 
     text_template = textwrap.dedent(
-        """
-        ---INSTRUCTIONS---
-        You are tasked to create video scenes based on a given section description and context documents, following these specific guidelines:
+    """
+    ---INSTRUCTIONS---
+    You are tasked to create video scenes based on a given section description and context documents, following these specific guidelines:
 
-        - Divide the section context into at least 5 distinct scenes.
-        - Use the section context's content to structure the scenes, with each scene having attributes to generate voice, image, and caption components.
-        - Prepare a precise speakerScript for each scene, as this will be used to create the voice component of the video.
-        - For each scene, use a stockFootageQuery to select exactly one stock image resource.
-        - All scenes must be of the type TEXT.
-        - Craft the narration in the voice of the paper's author, excluding indirect references such as "the paper says" or "the author says."
-        - Optimize the scenes for viewer engagement, maintaining the factual accuracy of the content.
+    - Divide the section context into at least 5 distinct scenes.
+    - Use the section context's content to structure the scenes, with each scene having attributes to generate voice, image, and caption components.
+    - Prepare a precise speakerScript for each scene, as this will be used to create the voice component of the video.
+    - For each scene, use a stockFootageQuery to select exactly one stock image resource.
+    - All scenes must be of the type TEXT.
+    - Craft the narration in the voice of the paper's author, excluding indirect references such as "the paper says" or "the author says."
+    - Optimize the scenes for viewer engagement, maintaining the factual accuracy of the content.
 
-        ---Section context---
-        {section_context}
+    ---Section context---
+    {section_context}
 
-        ---Relevant document snippets---
-        {relevant_docs}
+    ---Relevant document snippets---
+    {relevant_docs}
     """
     )
 
