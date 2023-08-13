@@ -3,20 +3,21 @@ from moviepy.editor import (
     ColorClip,
     VideoFileClip,
     concatenate_audioclips,
-    concatenate_videoclips
+    concatenate_videoclips,
+    VideoClip
 )
 from moviepy.video.fx import all as fx
 from moviepy.editor import CompositeVideoClip
 from moviepy.video.fx.all import mask_color
+import numpy as np
 
 
 from constants import VIDEO_FPS
-from text_alignments_to_video import CAPTION_COLOR_KEY
+from text_alignments_to_captions import CAPTION_COLOR_KEY
 
 def hex_to_rgb(hex_color_string):
     hex_color_string = hex_color_string.lstrip('#')
-    return tuple(int(hex_color_string[i:i+2], 16) for i in (0, 2, 4))
-
+    return [int(hex_color_string[i:i+2], 16) for i in (0, 2, 4)]
 
 def render_vid(
     animation_filenames: list[str], voice_filenames: list[str], output_filename: str, video_caption_filenames: list[str]
@@ -24,11 +25,13 @@ def render_vid(
     # Load the animations and the voice
     videos = [VideoFileClip(animation) for animation in animation_filenames]
     audios = [AudioFileClip(voice) for voice in voice_filenames]
-    captions = [VideoFileClip(caption) for caption in video_caption_filenames]
+    captions = [VideoFileClip(caption, has_mask=True) for caption in video_caption_filenames]
 
     for i in range(len(videos)):
         captions[i].set_fps(VIDEO_FPS)
-        captions[i] = mask_color(captions[i], color=hex_to_rgb(CAPTION_COLOR_KEY))  # key out the background color #ff0000
+        # captions[i] = mask_color(captions[i], color=[0,254,0], thr=0)  # key out the background color #ff0000
+        # print color space of captions[i]
+        print(captions[i].get_frame(0)[0][0])
 
         videos[i].duration = audios[i].duration
         videos[i].set_fps(VIDEO_FPS)
@@ -63,6 +66,7 @@ def render_vid(
 
     # Set the audio of the final clip to the voice
     final_video = concatenated_video.set_audio(concatenated_audio)
+    final_video.duration = final_duration 
 
     # Write the result to a file (many options available !)
     # TODO: Check codex and audio encoding
@@ -74,5 +78,5 @@ def render_vid(
 
 # Use the function
 if __name__ == "__main__":
-    print()
+    print(hex_to_rgb(CAPTION_COLOR_KEY), [1,2,3])
     # render_vid(["animation1.mp4", "animation2.mp4"], ["voice1.mp3", "voice2.mp3"], "output.mp4")

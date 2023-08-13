@@ -17,7 +17,7 @@ from paper_loader import paper_id_to_latex
 from script_refinement import generate_script, generate_script_scenes
 from stock_footage import generate_stock_footage
 from summary_to_script import generate_barebone_script
-from text_alignments_to_video import  generate_video_captions
+from text_alignments_to_captions import  generate_video_captions
 from text_to_voice import generate_script_audio_pieces, text_to_voice
 from tmp import tmp_loader, tmp_path, tmp_saver
 from vid_render import render_vid

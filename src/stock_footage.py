@@ -42,7 +42,7 @@ def _download_file(url, filename):
     
 
 def generate_stock_footage(paper_id: str, script: Script):
-    def _process_scene(context: [int, int], scene: TextScriptScene):
+    def _process_scene(context: tuple[int, int], scene: TextScriptScene):
       query = scene["stockFootageQuery"]
 
       if not query:

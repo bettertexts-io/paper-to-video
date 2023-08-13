@@ -69,6 +69,7 @@ def generate_script_audio_pieces(paper_id: str, script: Script):
             create_directories_from_path(sceneDir)
 
             if not os.path.exists(audio_path):
+                print(f"Generating audio for scene {context[0]}-{context[1]}")
                 text_to_voice(
                     paper_id=paper_id, input=scene["speakerScript"], output_path=audio_path
                 )

@@ -22,7 +22,7 @@ tmp_scene_sub_paths = {
     "audio": "audio.mp3",
     "text_alignments": "audio_text_alignments.json",
     "stock_footage": "stock_footage.mp4",
-    "caption_video": "caption_video.mp4",
+    "caption_video": "caption_video.gif",
 }
 
 def tmp_paper_dir_path(paper_id: str):
@@ -115,7 +115,7 @@ def create_directories_from_path(path):
         components = path.split("/")
 
         # Build the path component by component
-        current_path = ""
+        current_path = "/" if path.startswith("/") else "."
         for component in components:
             # Skip empty components
             if component:
