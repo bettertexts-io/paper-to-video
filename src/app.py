@@ -98,6 +98,7 @@ def paper_2_video(paper_id, MOCK_SUMMARY=None):
             # enriched_script_json = generate_script(barebone_script_json)
             script_with_scenes = {"sections": []}
             for section in barebone_script_json["sections"]:
+                # TODO: Pass last two sections to the script refinement 
                 print(section)
                 scenes = generate_script_scenes(section)
                 script_with_scenes["sections"].append(section)

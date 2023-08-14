@@ -36,7 +36,7 @@ def print_voices():
 
 
 def text_to_voice(
-    paper_id: str, input: str, output_path: str, voice_provider=VOICE_PROVIDER.GTTS
+    paper_id: str, input: str, output_path: str, voice_provider=VOICE_PROVIDER.ELEVENLABS
 ):
     if voice_provider == VOICE_PROVIDER.GTTS:
         tts = gTTS(input)
