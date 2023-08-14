@@ -62,9 +62,9 @@ def enrich_script(paper_id, barebone_script_json):
             if index == 0:
                 last_two = []
             elif index == 1:
-                last_two = [sections[index - 1]]
+                last_two = [sections[index - 1]["context"]]
             else:
-                last_two = [sections[index - 2], sections[index - 1]]
+                last_two = [sections[index - 2]["context"], sections[index - 1]["context"]]
             
             scenes = generate_script_scenes(section, last_two_sections=last_two)
             
