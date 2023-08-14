@@ -17,7 +17,6 @@ from vid_render import render_vid
 from tmp import tmp_loader, tmp_path, tmp_saver
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
 SKIP_VECTORIZATION = True

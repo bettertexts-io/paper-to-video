@@ -4,13 +4,9 @@ from moviepy.editor import (
     VideoFileClip,
     concatenate_audioclips,
     concatenate_videoclips,
-    VideoClip
+    CompositeVideoClip
 )
-from moviepy.video.fx import all as fx
-from moviepy.editor import CompositeVideoClip
 from moviepy.video.fx.all import mask_color
-import numpy as np
-
 
 from constants import VIDEO_FPS
 from text_alignments_to_captions import CAPTION_COLOR_KEY
@@ -27,56 +23,33 @@ def render_vid(
     audios = [AudioFileClip(voice) for voice in voice_filenames]
     captions = [VideoFileClip(caption, has_mask=True) for caption in video_caption_filenames]
 
-    for i in range(len(videos)):
+    for i, video in enumerate(videos):
+        video.set_fps(VIDEO_FPS)
+        video.duration = audios[i].duration  # Sync video duration with audio
+
         captions[i].set_fps(VIDEO_FPS)
-        # captions[i] = mask_color(captions[i], color=[0,254,0], thr=0)  # key out the background color #ff0000
-        # print color space of captions[i]
+        captions[i] = captions[i].subclip(0, video.duration)  # Sync caption duration with video
         print(captions[i].get_frame(0)[0][0])
 
-        videos[i].duration = audios[i].duration
-        videos[i].set_fps(VIDEO_FPS)
-        videos[i] = CompositeVideoClip([videos[i], captions[i]])
+        videos[i] = CompositeVideoClip([video, captions[i]])
 
-    # Calculate total duration of video videos and audio clip
-    if len(videos) != 0:
-        video_duration = sum(clip.duration for clip in videos)
-    else:
-        video_duration = 0
-
-    if len(audios) != 0:
-        audio_duration = sum(clip.duration for clip in audios)
-    else:
-        audio_duration = 0
+    total_audio_duration = sum(clip.duration for clip in audios)
+    total_video_duration = sum(clip.duration for clip in videos)
 
     # Add a black clip with cross dissolve if audio is longer than video
-    if audio_duration > video_duration:
-        black_clip = ColorClip(
-            (1920, 1080), col=(0, 0, 0), duration=audio_duration - video_duration
-        )
-        black_clip = black_clip.crossfadein(1).crossfadeout(
-            1
-        )  # 1 second cross dissolve in and out
+    if total_audio_duration > total_video_duration:
+        black_clip_duration = total_audio_duration - total_video_duration
+        black_clip = ColorClip((1920, 1080), col=(0, 0, 0), duration=black_clip_duration)
+        black_clip = black_clip.crossfadein(1).crossfadeout(1)  # 1-second cross dissolve in and out
         videos.append(black_clip)
 
-    final_duration = audio_duration
-
-    # Concatenate all video videos
     concatenated_video = concatenate_videoclips(videos, method="compose")
     concatenated_audio = concatenate_audioclips(audios)
-
-    # Set the audio of the final clip to the voice
     final_video = concatenated_video.set_audio(concatenated_audio)
-    final_video.duration = final_duration 
+    final_video.duration = total_audio_duration 
 
-    # Write the result to a file (many options available !)
-    # TODO: Check codex and audio encoding
-    print(final_duration, output_filename)
-    final_video.write_videofile(
-        output_filename, codec="libx264", audio_codec="aac", fps=VIDEO_FPS
-    )
+    # Write the result to a file
+    final_video.write_videofile(output_filename, codec="libx264", audio_codec="aac", fps=VIDEO_FPS)
 
-
-# Use the function
 if __name__ == "__main__":
     print(hex_to_rgb(CAPTION_COLOR_KEY), [1,2,3])
-    # render_vid(["animation1.mp4", "animation2.mp4"], ["voice1.mp3", "voice2.mp3"], "output.mp4")

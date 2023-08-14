@@ -15,3 +15,15 @@ The repo directory will not be mounted into the conatiner 'cause of security imp
 # Install requirements for mac:
 
 brew install ffmpeg espeak
+
+# How it works
+
+Fetch the paper by its ID.
+Vectorize the paper's LaTeX content.
+Summarize the paper.
+Convert the summary into a barebone script.
+Enrich the barebone script with scenes.
+Convert the enriched script into audio pieces.
+Generate stock footage based on the script.
+Generate captions for the video.
+Render the video using the audio pieces, stock footage, and captions.

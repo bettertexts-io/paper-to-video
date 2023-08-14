@@ -12,6 +12,7 @@ import requests
 
 from tmp import tmp_loader, tmp_path, tmp_saver
 
+logging.basicConfig(level=logging.DEBUG)
 
 def paper_id_to_latex(paper_id: str) -> str:
     """Example id: 1706.03762"""
