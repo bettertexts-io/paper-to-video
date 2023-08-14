@@ -56,10 +56,23 @@ def enrich_script(paper_id, barebone_script_json):
     if script_with_scenes is None:
         logging.info(f"Generating detailed context for each section")
         script_with_scenes = {"sections": []}
-        for section in barebone_script_json["sections"]:
-            scenes = generate_script_scenes(section)
+        sections = barebone_script_json["sections"]
+        
+        for index, section in enumerate(sections):
+            # Determine the last two sections
+            if index == 0:
+                last_two = []
+            elif index == 1:
+                last_two = [sections[index - 1]]
+            else:
+                last_two = [sections[index - 2], sections[index - 1]]
+            
+            scenes = generate_script_scenes(section, last_two_sections=last_two)
+            
+            # Append section and its scenes to the script_with_scenes
             script_with_scenes["sections"].append(section)
             script_with_scenes["sections"][-1]["scenes"] = scenes
+
         tmp_saver(paper_id=paper_id, kind="script_with_scenes", data=script_with_scenes, save_type="json")
     else:
         logging.info("Using cached enriched script")

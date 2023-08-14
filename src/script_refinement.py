@@ -56,7 +56,7 @@ def enrich_script_with_resources(section_script: list):
     return enriched_scripts
 
 
-def generate_script_scenes(section: ScriptSection):
+def generate_script_scenes(section: ScriptSection, last_two_sections: [str, str]):
     """
     Given the script of a section, generate a list of scenes for the video.
     """
@@ -67,20 +67,25 @@ def generate_script_scenes(section: ScriptSection):
     text_template = textwrap.dedent(
     """
     ---INSTRUCTIONS---
-    You are tasked to create video scenes based on a given section description and context documents, following these specific guidelines:
+    Using the provided section context and related document snippets, you are to design engaging video scenes. Adhere to the following:
 
-    - Divide the section context into at least 5 distinct scenes.
-    - Use the section context's content to structure the scenes, with each scene having attributes to generate voice, image, and caption components.
-    - Prepare a precise speakerScript for each scene, as this will be used to create the voice component of the video.
-    - For each scene, use a stockFootageQuery to select exactly one stock image resource.
-    - All scenes must be of the type TEXT.
-    - Craft the narration in the voice of the paper's author, excluding indirect references such as "the paper says" or "the author says."
-    - Optimize the scenes for viewer engagement, maintaining the factual accuracy of the content.
+    - Craft at least 4 distinct scenes based on the section context.
+    - Each scene should encompass:
+        * A concise speakerScript, which will be vocalized in the video.
+        * A stockFootageQuery that's specific enough to identify a relevant stock image on platforms like Pixabay. For abstract concepts, choose descriptors that are clear, unambiguous, and closely related to the topic.
+        * Note: The scene type is TEXT.
+    - Avoid using the same stockFootageQuery for multiple scenes.
+    - Narrate in the style of the paper's author. Refrain from phrases like "the paper mentions" or "according to the author."
+    - Prioritize viewer engagement while ensuring the content's factual integrity.
+    - Make content engaging and understandable for a non-scientific audience, ensuring factual accuracy. Avoid repetitiveness.
+    
+    ---PREVIOUS SECTIONS (For Reference)---
+    {last_two_sections}
 
-    ---Section context---
+    ---SECTION CONTEXT---
     {section_context}
 
-    ---Relevant document snippets---
+    ---DOCUMENT SNIPPETS---
     {relevant_docs}
     """
     )
@@ -93,7 +98,7 @@ def generate_script_scenes(section: ScriptSection):
         llm=llm,
         schema=script_scene_schema,
         prompt=prompt_template,
-        input=({'section_context': section["context"], 'relevant_docs': str(docs)}),
+        input=({'section_context': section["context"], 'relevant_docs': str(docs), 'last_two_sections': last_two_sections}),
     )
 
     return answer_obj["scenes"]
