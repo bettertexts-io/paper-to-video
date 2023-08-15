@@ -89,12 +89,10 @@ def generate_captions(paper_id, script_with_scenes):
     logging.info(f"Generating video captions")
     return generate_video_captions(paper_id=paper_id, script=script_with_scenes)
 
-def render_video(stock_footage_paths, audio_paths, video_caption_filenames, paper_id):
+def render_video(paper_id):
     logging.info(f"Generating video")
     render_vid(
-        animation_filenames=stock_footage_paths,
-        voice_filenames=audio_paths,
-        video_caption_filenames=video_caption_filenames,
+        paper_id,
         output_filename=tmp_path(paper_id=paper_id, kind="output"),
     )
 

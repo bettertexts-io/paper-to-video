@@ -1,3 +1,4 @@
+import os
 from moviepy.editor import (
     AudioFileClip,
     ColorClip,
@@ -10,14 +11,31 @@ from moviepy.video.fx.all import mask_color
 
 from constants import VIDEO_FPS
 from text_alignments_to_captions import CAPTION_COLOR_KEY
+from tmp import tmp_path
+
+def get_files_from_directory(directory: str, file_extension: str):
+    """Lists all files with the given extension in a directory and its subdirectories."""
+    matches = []
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in filenames:
+            if filename.endswith(file_extension):
+                matches.append(os.path.join(root, filename))
+    return matches
 
 def hex_to_rgb(hex_color_string):
     hex_color_string = hex_color_string.lstrip('#')
     return [int(hex_color_string[i:i+2], 16) for i in (0, 2, 4)]
 
 def render_vid(
-    animation_filenames: list[str], voice_filenames: list[str], output_filename: str, video_caption_filenames: list[str]
+    paper_id,
+    output_filename: str
 ):
+    directory_path = tmp_path(paper_id, "contentDir")
+    
+    animation_filenames = get_files_from_directory(directory_path, ".mp4")
+    voice_filenames = get_files_from_directory(directory_path, ".mp3")
+    video_caption_filenames = get_files_from_directory(directory_path, ".gif")
+
     # Load the animations and the voice
     videos = [VideoFileClip(animation) for animation in animation_filenames]
     audios = [AudioFileClip(voice) for voice in voice_filenames]
