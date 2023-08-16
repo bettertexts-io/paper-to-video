@@ -10,7 +10,7 @@ from langchain_summarize import (
 )
 from summary_to_script import generate_barebone_script
 from script_refinement import generate_script_scenes
-from text_to_voice import generate_script_audio_pieces
+from text_to_voice import generate_script_audio_pieces, print_voices
 from stock_footage import generate_stock_footage
 from text_alignments_to_captions import generate_video_captions
 from vid_render import render_vid
@@ -103,14 +103,14 @@ def paper_2_video(paper_id):
         summary = get_summary(paper_id, latex)
         barebone_script = generate_script_from_summary(paper_id, summary)
         enriched_script = enrich_script(paper_id, barebone_script)
-        audio_pieces = generate_audio(paper_id, enriched_script)
-        stock_footage_paths = get_stock_footage(paper_id, enriched_script)
-        captions = generate_captions(paper_id, enriched_script)
-        render_video(stock_footage_paths, audio_pieces, captions, paper_id)
+        generate_audio(paper_id, enriched_script)
+        get_stock_footage(paper_id, enriched_script)
+        generate_captions(paper_id, enriched_script)
+        render_video(paper_id)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
 
 if __name__ == "__main__":
     logging.info("Starting pipeline...")
-    paper_2_video("1706.03762")
+    paper_2_video("2302.13971")

@@ -30,8 +30,12 @@ class VOICE_PROVIDER(Enum):
 
 
 def print_voices():
-    available_voices = voices()
+    dotenv_path = join(dirname(__file__), ".env")
+    load_dotenv(dotenv_path)
 
+    set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
+
+    available_voices = voices()
     print(available_voices)
 
 
@@ -50,7 +54,8 @@ def text_to_voice(
 
         audio = generate(
             text=input,
-            voice="W5xFSFFgg8Y0CKoTQ5n8",
+            # voice="W5xFSFFgg8Y0CKoTQ5n8",
+            voice="0gHJ7RFLHQZU2PUCLpO4",
             model="eleven_monolingual_v1"
         )
 
