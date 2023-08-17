@@ -109,6 +109,8 @@ def refine_script_content(script_json: str):
     Given the script, refine the speakerScript and the stockFootageQuery
     """
 
+    print("Script json: ", script_json)
+
     prompt_template = textwrap.dedent(
     """
     ---INSTRUCTIONS---
@@ -146,4 +148,4 @@ def refine_script_content(script_json: str):
         input=({'script_data': script_json}),
     )
 
-    return answer_obj["scenes"]
+    return answer_obj

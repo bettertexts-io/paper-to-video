@@ -103,21 +103,31 @@ def enrich_script(paper_id, barebone_script_json):
 
 
 def refine_script(paper_id: str):
-    script_with_scenes = tmp_loader(
-        paper_id=paper_id, kind="script_with_scenes", save_type="json"
+    refined_script = tmp_loader(
+            paper_id=paper_id, kind="script_with_scenes_refined", save_type="json"
     )
-    if not script_with_scenes:
-        raise ValueError("Script not found.")
+     
+    if refined_script is None:   
+        logging.info(f"Refine script...")
 
-    refined_script = refine_script_content(script_with_scenes)
+        script_with_scenes = tmp_loader(
+            paper_id=paper_id, kind="script_with_scenes", save_type="json"
+        )
+        if not script_with_scenes:
+            raise ValueError("Script not found.")
 
-    tmp_saver(
-        paper_id=paper_id,
-        kind="script_with_scenes_refined",
-        data=refined_script,
-        save_type="json",
-    )
-    return script_with_scenes
+        refined_script = refine_script_content(script_with_scenes)
+
+        tmp_saver(
+            paper_id=paper_id,
+            kind="script_with_scenes_refined",
+            data=refined_script,
+            save_type="json",
+        )
+    else:
+        logging.info("Using cached refined script")
+
+    return refined_script
 
 
 def generate_audio(paper_id, script_with_scenes):

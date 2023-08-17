@@ -11,6 +11,7 @@ tmp_sub_paths = {
     "latex": "latex.tex",
     "barebone_script": "barebone.json",
     "script_with_scenes": "script_with_scenes.json",
+    "script_with_scenes_refined": "script_with_scenes_refined.json",
     "summary": "summary.txt",
     "chromaDir": "chroma",
     "audio": "audio.mp3",
