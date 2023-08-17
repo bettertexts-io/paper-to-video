@@ -90,8 +90,19 @@ def align_audio_with_text(audio_path, text_content, output_path):
     # Configuration string for the task
     config_string = "task_language=eng|os_task_file_format=json|is_text_type=plain"
 
-    word_by_word_text = "\n".join(text_content.split())
+    # Split the text_content into chunks of up to 18 characters, without splitting words
+    text_chunks = []
+    current_chunk = ''
+    for word in text_content.split():
+        if len(current_chunk) + len(word) + 1 > 18:  # +1 for the space
+            text_chunks.append(current_chunk)
+            current_chunk = word
+        else:
+            current_chunk += ' ' + word if current_chunk else word
+    if current_chunk:
+        text_chunks.append(current_chunk)
 
+    word_by_word_text = "\n...\n".join(text_chunks)
 
     # Create a Task object
     task = Task(config_string=config_string)

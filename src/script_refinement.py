@@ -56,7 +56,7 @@ def enrich_script_with_resources(section_script: list):
     return enriched_scripts
 
 
-def generate_script_scenes(section: ScriptSection, last_two_sections: [str, str]):
+def generate_script_scenes(section: ScriptSection, last_two_sections: tuple[str, str]):
     """
     Given the script of a section, generate a list of scenes for the video.
     """

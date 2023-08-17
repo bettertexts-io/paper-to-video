@@ -1,6 +1,7 @@
 import os
 import logging
 from dotenv import load_dotenv
+from fetch_google_image import fetch_google_images
 from paper_loader import paper_id_to_latex
 from chroma import vectorize_latex_in_chroma
 from langchain_summarize import (
@@ -105,6 +106,7 @@ def paper_2_video(paper_id):
         enriched_script = enrich_script(paper_id, barebone_script)
         generate_audio(paper_id, enriched_script)
         get_stock_footage(paper_id, enriched_script)
+        fetch_google_images(paper_id=paper_id, script=enriched_script)
         generate_captions(paper_id, enriched_script)
         render_video(paper_id)
     except Exception as e:

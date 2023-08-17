@@ -22,7 +22,8 @@ tmp_scene_sub_paths = {
     "audio": "audio.mp3",
     "text_alignments": "audio_text_alignments.json",
     "stock_footage": "stock_footage.mp4",
-    "caption_video": "caption_video.gif",
+    "caption_video": "caption_video.mov",
+    "google_image": "google_image",
 }
 
 def tmp_paper_dir_path(paper_id: str):
