@@ -1,6 +1,7 @@
 import logging
 import textwrap
 import time
+import re
 
 from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
@@ -11,7 +12,7 @@ from chroma import (
     query_chroma_by_prompt,
     query_chroma_by_prompt_with_template,
 )
-from script import ScriptSection, script_scene_schema
+from script import ScriptSection, script_scene_schema, script_schema
 
 
 def generate_script(barebone_script_json: dict):
@@ -64,21 +65,20 @@ def generate_script_scenes(section: ScriptSection, last_two_sections: tuple[str,
     docs = query_chroma_by_prompt(section["title"])
     print(docs)
 
-    text_template = textwrap.dedent(
+    prompt_template = textwrap.dedent(
     """
     ---INSTRUCTIONS---
-    Using the provided section context and related document snippets, you are to design engaging video scenes. Adhere to the following:
+    Using the provided section context and related document snippets, design engaging video scenes. Adhere to these specifications:
 
-    - Craft at least 4 distinct scenes based on the section context.
-    - Each scene should encompass:
-        * A concise speakerScript, which will be vocalized in the video.
-        * A stockFootageQuery that's specific enough to identify a relevant stock image on platforms like Pixabay. For abstract concepts, choose descriptors that are clear, unambiguous, and closely related to the topic.
-        * Note: The scene type is TEXT.
-    - Avoid using the same stockFootageQuery for multiple scenes.
-    - Narrate in the style of the paper's author. Refrain from phrases like "the paper mentions" or "according to the author."
-    - Prioritize viewer engagement while ensuring the content's factual integrity.
-    - Make content engaging and understandable for a non-scientific audience, ensuring factual accuracy. Avoid repetitiveness.
-    
+    - Generate a minimum of 4 unique scenes from the section context.
+    - For each scene:
+        * Produce a `SpeakerScript`: A concise statement for video narration. Exclude references like "the paper mentions" or "according to the author."
+        * Formulate a `StockFootageQuery`: Specific search terms for platforms such as Pixabay. For abstract topics, use clear, non-ambiguous descriptors.
+        * Note: Set the scene type to TEXT.
+    - Ensure varied `StockFootageQuery` across all scenes.
+    - Align narration with the paper author's style.
+    - Aim for viewer engagement while maintaining factual accuracy. Address a non-scientific audience, avoiding jargon, abstract examples and repetition.
+
     ---PREVIOUS SECTIONS (For Reference)---
     {last_two_sections}
 
@@ -90,9 +90,9 @@ def generate_script_scenes(section: ScriptSection, last_two_sections: tuple[str,
     """
     )
 
-    prompt_template = PromptTemplate.from_template(template=text_template)
+    prompt_template = PromptTemplate.from_template(template=prompt_template)
 
-    llm = ChatOpenAI(model_name="gpt-4", temperature=0.7, max_tokens=4096)
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0.7)
 
     answer_obj = answer_as_json(
         llm=llm,
@@ -104,7 +104,46 @@ def generate_script_scenes(section: ScriptSection, last_two_sections: tuple[str,
     return answer_obj["scenes"]
 
 
-if __name__ == "__main__":
-    # Read sample string from txt file
+def refine_script_content(script_json: str):
+    """
+    Given the script, refine the speakerScript and the stockFootageQuery
+    """
 
-    print("generate_script")
+    prompt_template = textwrap.dedent(
+    """
+    ---INSTRUCTIONS---
+    Given the provided script for a YouTube video narration about a scientific paper, refine each scene's 'speakerScript' and 'stockFootageQuery' to increase clarity, engagement, and accessibility for a general audience. The overarching narrative should maintain a coherent and fluid storyline, ensuring viewers can easily follow the content.
+
+    For each scene, ensure the following:
+
+    1. The 'speakerScript' should:
+    - Start with a warm welcome to the audience for the first scene.
+    - Conclude with a thank you and an invitation to the next video for the last scene.
+    - Be concise and clear, avoiding unnecessary technical jargon.
+    - Use relatable analogies or examples where necessary.
+    - Maintain a logical flow, ensuring the content follows a red thread throughout.
+
+    2. The 'stockFootageQuery' should:
+    - Be general enough to fetch a broad range of relevant results.
+    - Relate closely to the scene's core message.
+    - Avoid highly technical terms or niche references.
+
+    Provide a refined script maintaining the original structure, ensuring it's tailored for a YouTube audience.
+
+    ---ORIGINAL SCRIPT---
+    {script_data}
+    """
+    )
+
+    prompt_template = PromptTemplate.from_template(template=prompt_template)
+
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0.75)
+
+    answer_obj = answer_as_json(
+        llm=llm,
+        schema=script_schema,
+        prompt=prompt_template,
+        input=({'script_data': script_json}),
+    )
+
+    return answer_obj["scenes"]

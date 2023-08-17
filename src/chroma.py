@@ -17,7 +17,6 @@ llm = ChatOpenAI(
     model_name="gpt-4",
     # Prevent creativity
     temperature=0,
-    max_tokens=4096,
 )
 
 

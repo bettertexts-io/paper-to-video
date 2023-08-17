@@ -25,17 +25,20 @@ class ScriptSection(NamedTuple):
 class Script(NamedTuple):
     sections: list[ScriptSection]
 
-def for_every_scene(script: Script, func: Callable[[[int, int], TextScriptScene], None]) -> List[Any]:
+
+def for_every_scene(
+    script: Script, func: Callable[[[int, int], TextScriptScene], None]
+) -> List[Any]:
     ret = []
     for i, section in enumerate(script["sections"]):
         if section["scenes"]:  # Ensure there are scenes to process
             for j, scene in enumerate(section["scenes"]):
-                ret.append(func([i,j], scene))
+                ret.append(func([i, j], scene))
 
     return ret
 
 
-def script_schema(exclude_scenes: bool = False):
+def generate_script_schema(exclude_scenes: bool = False):
     schema = {
         "type": "object",
         "properties": {
@@ -79,5 +82,43 @@ script_scene_schema = {
                 "required": ["type", "title", "speakerScript", "stockFootageQuery"],
             },
         }
-    }
+    },
+}
+
+script_schema = {
+    "type": "object",
+    "properties": {
+        "sections": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string"},
+                    "context": {"type": "string"},
+                    "scenes": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {"type": "string", "const": "TEXT"},
+                                "title": {
+                                    "type": "string"
+                                },  # Changed "shortTitle" to "title"
+                                "speakerScript": {"type": "string"},
+                                "stockFootageQuery": {"type": "string"},
+                                "memeSearchTerm": {"type": "string"},
+                            },
+                            "required": [
+                                "type",
+                                "title",
+                                "speakerScript",
+                                "stockFootageQuery",
+                            ],
+                        },
+                    }
+                },
+                "required": ["title", "context", "scenes"],
+            },
+        }
+    },
 }
