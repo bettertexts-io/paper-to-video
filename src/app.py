@@ -9,8 +9,8 @@ from langchain_summarize import (
     summarize_by_map_reduce,
 )
 from summary_to_script import generate_barebone_script
-from script_refinement import generate_script_scenes
-from text_to_voice import generate_script_audio_pieces, print_voices
+from script_refinement import generate_script_scenes, refine_script_content
+from text_to_voice import generate_script_audio_pieces
 from stock_footage import generate_stock_footage
 from text_alignments_to_captions import generate_video_captions
 from vid_render import render_vid
@@ -75,6 +75,15 @@ def enrich_script(paper_id, barebone_script_json):
         tmp_saver(paper_id=paper_id, kind="script_with_scenes", data=script_with_scenes, save_type="json")
     else:
         logging.info("Using cached enriched script")
+
+def refine_script(paper_id: str):
+    script_with_scenes = tmp_loader(paper_id=paper_id, kind="script_with_scenes", save_type="json")
+    if not script_with_scenes:
+        raise ValueError("Script not found.")
+    
+    refined_script = refine_script_content(script_with_scenes)
+
+    tmp_saver(paper_id=paper_id, kind="script_with_scenes_refined", data=refined_script, save_type="json")
     return script_with_scenes
 
 def generate_audio(paper_id, script_with_scenes):
@@ -102,10 +111,11 @@ def paper_2_video(paper_id):
         vectorize_paper(latex)
         summary = get_summary(paper_id, latex)
         barebone_script = generate_script_from_summary(paper_id, summary)
-        enriched_script = enrich_script(paper_id, barebone_script)
-        generate_audio(paper_id, enriched_script)
-        get_stock_footage(paper_id, enriched_script)
-        generate_captions(paper_id, enriched_script)
+        enrich_script(paper_id, barebone_script)
+        refined_script = refine_script(paper_id)
+        generate_audio(paper_id, refined_script)
+        get_stock_footage(paper_id, refined_script)
+        generate_captions(paper_id, refined_script)
         render_video(paper_id)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
