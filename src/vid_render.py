@@ -38,32 +38,32 @@ def render_vid(
     
     animation_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["stock_footage"])
     voice_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["audio"])
-    video_caption_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["caption_video"])
+    # video_caption_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["caption_video"])
     google_image_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["google_image"])
 
     # Load the animations and the voice
     videos = [VideoFileClip(animation) for animation in animation_filenames]
     audios = [AudioFileClip(voice) for voice in voice_filenames]
-    captions = [VideoFileClip(caption, has_mask=True) for caption in video_caption_filenames]
-    google_images = [ImageClip(google_image) for google_image in google_image_filenames]
+    # captions = [VideoFileClip(caption, has_mask=True) for caption in video_caption_filenames]
+    # google_images = [ImageClip(google_image) for google_image in google_image_filenames]
 
-    print("Videos: ", len(videos), "Audios: ", len(audios), "Captions: ", len(captions), "Google Images: ", len(google_images))
+    print("Videos: ", len(videos), "Audios: ", len(audios))
     for i, video in enumerate(videos):
         video.set_fps(VIDEO_FPS)
         video.duration = audios[i].duration  # Sync video duration with audio
 
-        captions[i].set_fps(VIDEO_FPS)
-        captions[i] = captions[i].subclip(0, video.duration)  # Sync caption duration with video
+        # captions[i].set_fps(VIDEO_FPS)
+        # captions[i] = captions[i].subclip(0, video.duration)  # Sync caption duration with video
 
-        google_images[i].duration = video.duration
-        google_images[i] = google_images[i].resize(height=1080)
-        google_images[i].set_fps(VIDEO_FPS)
+        # google_images[i].duration = video.duration
+        # google_images[i] = google_images[i].resize(height=1080)
+        # google_images[i].set_fps(VIDEO_FPS)
 
         # Lay the google image above the stock image and under the caption
         videos[i] = CompositeVideoClip([
             video, 
             # google_images[i], 
-            captions[i]
+            # captions[i]
             ])  # Resize the video to a height of 1080
         
 

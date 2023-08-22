@@ -15,7 +15,7 @@ from chroma import (
 from script import ScriptSection, script_scene_schema, script_schema
 
 
-def generate_script(barebone_script_json: dict):
+def generate_script(paper_id: str, barebone_script_json: dict):
     """
     Given the summary of the paper, generate a detailed video script.
     This function queries the chroma vector database for each section to generate a script for a video.
@@ -27,7 +27,7 @@ def generate_script(barebone_script_json: dict):
     for section in sections:
         title = section["title"]
 
-        section_script = query_chroma_by_prompt_with_template(title)
+        section_script = query_chroma_by_prompt_with_template(paper_id, title)
 
         # Remove the special characters
         section_script = section_script.replace("\n", " ").replace("\\", "")
@@ -41,13 +41,13 @@ def generate_script(barebone_script_json: dict):
     return barebone_script_json
 
 
-def enrich_script_with_resources(section_script: list):
+def enrich_script_with_resources(paper_id: str, section_script: list):
     enriched_scripts = []
 
     for script in section_script:
         # For simplicity, let's assume chroma also has access to relevant resources.
         resource_prompt = f"Based on the content:\n\n{script}\n\nCan you suggest visual resources or cues to enhance this section for a video presentation?"
-        suggested_resources = query_chroma_by_prompt(resource_prompt)
+        suggested_resources = query_chroma_by_prompt(paper_id, resource_prompt)
 
         enriched_section = {"script": script, "resources": suggested_resources}
 
@@ -57,27 +57,26 @@ def enrich_script_with_resources(section_script: list):
     return enriched_scripts
 
 
-def generate_script_scenes(section: ScriptSection, last_two_sections: tuple[str, str]):
+def generate_script_scenes(paper_id: str, section: ScriptSection, last_two_sections: tuple[str, str]):
     """
     Given the script of a section, generate a list of scenes for the video.
     """
 
-    docs = query_chroma_by_prompt(section["title"])
-    print(docs)
+    docs = query_chroma_by_prompt(paper_id, section["title"])
 
-    prompt_template = textwrap.dedent(
+    prompt_input = textwrap.dedent(
     """
     ---INSTRUCTIONS---
-    Using the provided section context and related document snippets, design engaging video scenes. Adhere to these specifications:
+    You are to craft engaging video scenes inspired by the style of Yannic Kilcher, known for his deep dives into academic papers. Follow these guidelines:
 
-    - Generate a minimum of 4 unique scenes from the section context.
+    - Generate at least 4 unique scenes derived from the section context.
     - For each scene:
-        * Produce a `SpeakerScript`: A concise statement for video narration. Exclude references like "the paper mentions" or "according to the author."
-        * Formulate a `StockFootageQuery`: Specific search terms for platforms such as Pixabay. For abstract topics, use clear, non-ambiguous descriptors.
+        * Create a `SpeakerScript`: Frame your narration as if you're taking the viewer on a detailed academic journey. Intermingle explanations with questions, comparisons, and relevant challenges. Avoid saying "the paper mentions" or "according to the author."
+        * Construct a `StockFootageQuery`: Search terms suitable for platforms like Pixabay. For abstract topics, opt for direct, non-ambiguous terms.
         * Note: Set the scene type to TEXT.
-    - Ensure varied `StockFootageQuery` across all scenes.
-    - Align narration with the paper author's style.
-    - Aim for viewer engagement while maintaining factual accuracy. Address a non-scientific audience, avoiding jargon, abstract examples and repetition.
+    - Diversify the `StockFootageQuery` for each scene.
+    - Channel the engaging, detail-oriented approach of Yannic Kilcher. 
+    - Strive for viewer engagement, preserving factual precision. Tailor the content for an academic audience, steering clear of vague examples and redundancy.
 
     ---PREVIOUS SECTIONS (For Reference)---
     {last_two_sections}
@@ -90,7 +89,7 @@ def generate_script_scenes(section: ScriptSection, last_two_sections: tuple[str,
     """
     )
 
-    prompt_template = PromptTemplate.from_template(template=prompt_template)
+    prompt_template = PromptTemplate.from_template(template=prompt_input)
 
     llm = ChatOpenAI(model_name="gpt-4", temperature=0.7)
 
@@ -109,35 +108,32 @@ def refine_script_content(script_json: str):
     Given the script, refine the speakerScript and the stockFootageQuery
     """
 
-    print("Script json: ", script_json)
-
-    prompt_template = textwrap.dedent(
+    text_template = textwrap.dedent(
     """
     ---INSTRUCTIONS---
-    Given the provided script for a YouTube video narration about a scientific paper, refine each scene's 'speakerScript' and 'stockFootageQuery' to increase clarity, engagement, and accessibility for a general audience. The overarching narrative should maintain a coherent and fluid storyline, ensuring viewers can easily follow the content.
+    We're on a mission to create an engaging YouTube video about a scientific paper. Using the script provided, refine its narrative for an academic YouTube audience. We want our viewers to have a smooth journey from the first scene to the last.
 
-    For each scene, ensure the following:
+    Follow these steps for each scene:
 
-    1. The 'speakerScript' should:
-    - Start with a warm welcome to the audience for the first scene.
-    - Conclude with a thank you and an invitation to the next video for the last scene.
-    - Be concise and clear, avoiding unnecessary technical jargon.
-    - Use relatable analogies or examples where necessary.
-    - Maintain a logical flow, ensuring the content follows a red thread throughout.
+    1. 'SpeakerScript' refinements:
+    - Begin the first scene with a friendly welcome to our audience.
+    - Wind up the last scene with gratitude and a teaser for the next video.
+    - Keep it short and sweet, skipping over heavy jargon.
+    - When complex topics pop up, bridge the gap with relatable examples or analogies.
+    - Craft a storyline that has a clear beginning, middle, and end, weaving a red thread throughout.
 
-    2. The 'stockFootageQuery' should:
-    - Be general enough to fetch a broad range of relevant results.
-    - Relate closely to the scene's core message.
-    - Avoid highly technical terms or niche references.
+    2. 'StockFootageQuery' suggestions:
+    - Choose terms that offer a rich pool of relevant visuals.
+    - Ensure the visuals underscore the core message of the scene.
 
-    Provide a refined script maintaining the original structure, ensuring it's tailored for a YouTube audience.
+    Please retain the original script's structure, refining its essence for enhanced clarity, engagement, and viewer retention.
 
     ---ORIGINAL SCRIPT---
-    {script_data}
+        {script_data}
     """
     )
 
-    prompt_template = PromptTemplate.from_template(template=prompt_template)
+    prompt_template = PromptTemplate.from_template(template=text_template)
 
     llm = ChatOpenAI(model_name="gpt-4", temperature=0.75)
 

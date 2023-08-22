@@ -6,7 +6,7 @@ from paper_loader import paper_id_to_latex
 def chunk_latex_into_sections(latex_input: str):
     # split it into chunks
     text_splitter = LatexTextSplitter(
-       chunk_size=8000, chunk_overlap=500
+       chunk_size=2000, chunk_overlap=200
     )
     chunks = text_splitter.split_text(latex_input)
 
@@ -15,7 +15,7 @@ def chunk_latex_into_sections(latex_input: str):
 
 def chunk_latex_into_docs(latex_input: str):
     text_splitter = LatexTextSplitter(
-        chunk_size=8000, chunk_overlap=500
+       chunk_size=2000, chunk_overlap=200
     )
     docs = text_splitter.create_documents([latex_input])
 

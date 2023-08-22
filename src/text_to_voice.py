@@ -55,7 +55,8 @@ def text_to_voice(
         audio = generate(
             text=input,
             # voice="W5xFSFFgg8Y0CKoTQ5n8",
-            voice="0gHJ7RFLHQZU2PUCLpO4",
+            # voice="0gHJ7RFLHQZU2PUCLpO4",
+            voice="O084zOEvIxEmviwy8Cno",
             model="eleven_monolingual_v1"
         )
 

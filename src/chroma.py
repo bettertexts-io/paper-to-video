@@ -1,5 +1,7 @@
 import os
 from enum import Enum
+import random
+import uuid
 
 from langchain import PromptTemplate
 from langchain.chains.question_answering import load_qa_chain
@@ -12,6 +14,7 @@ from langchain.vectorstores import Chroma
 from constants import *
 from latex_to_chunks import chunk_latex_into_sections
 from latex_to_text import extract_text_from_latex
+from paper_loader import paper_id_to_latex
 
 llm = ChatOpenAI(
     model_name="gpt-4",
@@ -45,12 +48,17 @@ Craft a structured script with a narrator and scene descriptions. Avoid introduc
 Vectorize the paper in Chroma vector store using the given embedding function
 """
 
+def random_uuid():
+    return uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
 
-def vectorize_latex_in_chroma(latex_input: str):
+
+def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
     # split it into chunks
+    random.seed(paper_id)
     sections = chunk_latex_into_sections(latex_input)
 
     docs = []
+    ids = []
     for section in sections:
         plain_text = extract_text_from_latex(section)
         cleaned_text = plain_text.strip().replace("\n", "")
@@ -60,27 +68,30 @@ def vectorize_latex_in_chroma(latex_input: str):
             metadata={"latex": section},
         )
 
+        ids.append(str(random_uuid()))
         docs.append(doc)
 
     # load it into Chroma
+    collection_name = "paper_" + paper_id
     db = Chroma.from_documents(
-        docs, embedding_function, persist_directory="../chroma_db"
+        documents=docs, embedding=embedding_function, ids=ids, persist_directory="../chroma_db", collection_name=collection_name
     )
     db.persist()
 
 
-def query_chroma(input: str, number_of_results=5):
+def query_chroma(paper_id: str, input: str, number_of_results=4):
     # Load chroma
-    db = Chroma(persist_directory="../chroma_db", embedding_function=embedding_function)
+    collection_name = "paper_" + paper_id
+    db = Chroma(persist_directory="../chroma_db", embedding_function=embedding_function, collection_name=collection_name)
 
-    docs = db.similarity_search(input, k=number_of_results)
+    docs = db.similarity_search(query=input, k=number_of_results)
 
     return docs
 
 
-def query_chroma_by_prompt(question: str):
+def query_chroma_by_prompt(paper_id, question: str):
     # Load chroma
-    docs = query_chroma(question)
+    docs = query_chroma(paper_id, question)
 
     # Query your database here
     chain = load_qa_chain(llm, chain_type="map_reduce", verbose=True)
@@ -89,10 +100,10 @@ def query_chroma_by_prompt(question: str):
 
 
 def query_chroma_by_prompt_with_template(
-    question: str, prompt_template: str = DEFAULT_CONTEXT_PROMPT
+    paper_id: str, question: str, prompt_template: str = DEFAULT_CONTEXT_PROMPT
 ):
     # Load chroma
-    docs = query_chroma(question, 2)
+    docs = query_chroma(paper_id, question, 2)
 
     PROMPT = PromptTemplate(
         template=prompt_template, input_variables=["context", "question"]
@@ -106,13 +117,14 @@ def query_chroma_by_prompt_with_template(
 
 
 if __name__ == "__main__":
-    # # load a sample paper
-    # paper_content = paper_id_to_latex("1706.03762")
+    # load a sample paper
+    paper_id = "2205.14135"
+    paper_content = paper_id_to_latex(paper_id)
 
-    # vectorize_latex_in_chroma(paper_content)
+    vectorize_latex_in_chroma(paper_id, paper_content)
 
-    # # Query paper by prompt
-    keyword = "Introduction"
+    # Query paper by prompt
+    question = "What is the paper about?"
 
-    answer = query_chroma_by_prompt_with_template(keyword)
-    logging.info(answer)
+    answer = query_chroma_by_prompt_with_template(paper_id, question) 
+    print(answer)

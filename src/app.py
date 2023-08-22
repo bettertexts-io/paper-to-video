@@ -20,18 +20,15 @@ from tmp import tmp_loader, tmp_path, tmp_saver
 # Configure logging
 load_dotenv()
 
-SKIP_VECTORIZATION = True
-
 
 def fetch_paper(paper_id):
     logging.info(f"Fetching paper with id {paper_id}")
     return paper_id_to_latex(paper_id)
 
 
-def vectorize_paper(latex):
-    if not SKIP_VECTORIZATION:
-        logging.info(f"Vectorizing paper")
-        vectorize_latex_in_chroma(latex)
+def vectorize_paper(paper_id, latex):
+    logging.info(f"Vectorizing paper")
+    vectorize_latex_in_chroma(paper_id, latex)
 
 
 def get_summary(paper_id, latex):
@@ -86,7 +83,7 @@ def enrich_script(paper_id, barebone_script_json):
                     sections[index - 1]["context"],
                 ]
 
-            scenes = generate_script_scenes(section, last_two_sections=last_two)
+            scenes = generate_script_scenes(paper_id, section, last_two_sections=last_two)
 
             # Append section and its scenes to the script_with_scenes
             script_with_scenes["sections"].append(section)
@@ -156,7 +153,7 @@ def render_video(paper_id):
 def paper_2_video(paper_id):
     try:
         latex = fetch_paper(paper_id)
-        vectorize_paper(latex)
+        vectorize_paper(paper_id, latex)
         summary = get_summary(paper_id, latex)
         barebone_script = generate_script_from_summary(paper_id, summary)
         enrich_script(paper_id, barebone_script)
@@ -172,4 +169,4 @@ def paper_2_video(paper_id):
 
 if __name__ == "__main__":
     logging.info("Starting pipeline...")
-    paper_2_video("2302.13971")
+    paper_2_video("2307.08691")
