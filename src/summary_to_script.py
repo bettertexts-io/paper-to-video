@@ -24,21 +24,15 @@ def generate_barebone_script(summary: str):
     text_template = textwrap.dedent(
     """
     ---INSTRUCTIONS---
-    In a world inundated with information, it's essential to present content in a digestible and engaging way. With this in mind, your task is to create a structured and captivating barebone video script. Follow the guidelines below to transform a summary into an exciting narrative:
+    Channeling Yannic Kilcher's analytical style, transform the given summary into a detailed video script:
 
-    1. **Introduction**: Start with a compelling introduction that hooks the viewer. Briefly outline the subject of the video and why it matters.
-
-    2. **Convert the Summary into Video Sections**: Break down the summary into at least five distinct video sections. These sections should contain:
-        a) **Title**: A relevant and intriguing title for each section.
-        b) **Context**: Explain the content of the section in a way that maintains viewer interest without sacrificing accuracy.
-
-    3. **Optimization for Engagement**: Arrange the sections coherently and craft the content to keep the viewer engaged. Be creative but remain true to the facts.
-
-    4. **Avoid Visual References**: Focus on the script's verbal content. Do not include captions or image references at this stage.
-
-    5. **Conclusion**: Summarize everything discussed in the video. Wrap up with a closing statement that leaves an impression.
-
-    By adhering to these guidelines, you'll craft a script that informs and entertains.
+    1. **Introduction**: Start with a question or statement about the topic's importance.
+    2. **Segmentation**: Divide the summary into at least five sections. Each should have:
+        a) **Title**: A meaningful header.
+        b) **Context**: Detailed content, balancing depth with clarity.
+    3. **Flow**: Ensure logical progression between sections.
+    4. **Avoid Visuals**: Focus on narrative content; omit visual references.
+    5. **Conclusion**: Summarize and end with a thought-provoking question or statement.
 
     ---SUMMARY---
     {input}

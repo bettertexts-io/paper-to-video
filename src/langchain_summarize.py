@@ -23,7 +23,7 @@ MAP_SUMMARY_PROMPT = """
  CONCISE SUMMARY:
  """
 
-COMBINE_SUMMARY_PROMPT = """Please provide a summary of the following LaTeX academic paper, adhering to the structure outlined below. Make sure to omit the 'Conclusion', 'Bibliography', and 'References' sections. Focus on summarizing the 'Introduction', 3-4 main sections, and then provide an end summary. Include a list of the other sections at the end of your response:
+COMBINE_SUMMARY_PROMPT = """Please provide a summary of the following academic paper which is written in LaTeX, adhering to the structure outlined below. Make sure to omit the 'Conclusion', 'Bibliography', and 'References' sections. Focus on summarizing the 'Introduction', 3-4 main sections, and then provide an end summary. Include a list of the other sections at the end of your response:
 
 {text}
 

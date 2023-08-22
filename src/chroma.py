@@ -74,7 +74,7 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
     # load it into Chroma
     collection_name = "paper_" + paper_id
     db = Chroma.from_documents(
-        documents=docs, embedding=embedding_function, ids=ids, persist_directory="../chroma_db", collection_name=collection_name
+        documents=docs, embedding=embedding_function, persist_directory="../chroma_db", ids=ids, collection_name=collection_name
     )
     db.persist()
 
@@ -84,7 +84,7 @@ def query_chroma(paper_id: str, input: str, number_of_results=4):
     collection_name = "paper_" + paper_id
     db = Chroma(persist_directory="../chroma_db", embedding_function=embedding_function, collection_name=collection_name)
 
-    docs = db.similarity_search(query=input, k=number_of_results)
+    docs = db.similarity_search(input, k=number_of_results)
 
     return docs
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     vectorize_latex_in_chroma(paper_id, paper_content)
 
     # Query paper by prompt
-    question = "What is the paper about?"
+    question = "Summarize this paper"
 
     answer = query_chroma_by_prompt_with_template(paper_id, question) 
     print(answer)

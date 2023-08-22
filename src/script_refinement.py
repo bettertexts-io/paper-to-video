@@ -67,16 +67,16 @@ def generate_script_scenes(paper_id: str, section: ScriptSection, last_two_secti
     prompt_input = textwrap.dedent(
     """
     ---INSTRUCTIONS---
-    You are to craft engaging video scenes inspired by the style of Yannic Kilcher, known for his deep dives into academic papers. Follow these guidelines:
+    Your task is to design insightful video scenes reminiscent of Yannic Kilcher's in-depth explorations of academic topics. Ensure the following:
 
-    - Generate at least 4 unique scenes derived from the section context.
+    - Derive a minimum of 4 unique scenes from the provided section context.
     - For each scene:
-        * Create a `SpeakerScript`: Frame your narration as if you're taking the viewer on a detailed academic journey. Intermingle explanations with questions, comparisons, and relevant challenges. Avoid saying "the paper mentions" or "according to the author."
-        * Construct a `StockFootageQuery`: Search terms suitable for platforms like Pixabay. For abstract topics, opt for direct, non-ambiguous terms.
-        * Note: Set the scene type to TEXT.
-    - Diversify the `StockFootageQuery` for each scene.
-    - Channel the engaging, detail-oriented approach of Yannic Kilcher. 
-    - Strive for viewer engagement, preserving factual precision. Tailor the content for an academic audience, steering clear of vague examples and redundancy.
+        * `SpeakerScript`: Guide the viewer through a rigorous yet engaging academic discourse. Weave the narrative with clarifying explanations, posed queries, relevant contrasts, and technical challenges. Avoid directly referencing the original paper or its authors. 
+        * `StockFootageQuery`: Choose search terms apt for stock platforms like Pixabay. For theoretical concepts, employ clear and specific terminology to capture the essence.
+        * Note: Always set the scene type to TEXT.
+    - Ensure diversity in the `StockFootageQuery` across scenes.
+    - Emulate the meticulous, depth-driven approach characteristic of Yannic Kilcher.
+    - Prioritize factual accuracy while keeping the academic audience engrossed. Sidestep overly broad examples and repetitiveness.
 
     ---PREVIOUS SECTIONS (For Reference)---
     {last_two_sections}
@@ -111,25 +111,22 @@ def refine_script_content(script_json: str):
     text_template = textwrap.dedent(
     """
     ---INSTRUCTIONS---
-    We're on a mission to create an engaging YouTube video about a scientific paper. Using the script provided, refine its narrative for an academic YouTube audience. We want our viewers to have a smooth journey from the first scene to the last.
+    We're diving deep into a scientific exploration in the style of Yannic Kilcher. The goal is to create an engaging YouTube video inspired by a particular academic theme, and we need to ensure it's crystal clear and captivating for our audience.
 
-    Follow these steps for each scene:
+    When refining each scene in the provided script, kindly adhere to the following steps:
 
     1. 'SpeakerScript' refinements:
-    - Begin the first scene with a friendly welcome to our audience.
-    - Wind up the last scene with gratitude and a teaser for the next video.
-    - Keep it short and sweet, skipping over heavy jargon.
-    - When complex topics pop up, bridge the gap with relatable examples or analogies.
-    - Craft a storyline that has a clear beginning, middle, and end, weaving a red thread throughout.
+    - Begin with an enthusiastic welcome, drawing our viewers into the academic journey right from the first scene.
+    - Conclude the last scene with gratitude, subtly hinting at the excitement the next video promises.
+    - Weave a consistent storyline throughout, ensuring there's a coherent narrative arc from start to finish.
 
     2. 'StockFootageQuery' suggestions:
-    - Choose terms that offer a rich pool of relevant visuals.
-    - Ensure the visuals underscore the core message of the scene.
+    - Handpick terms that will lead to visuals deeply aligned with the scene's core message. The more relevant, the better.
 
-    Please retain the original script's structure, refining its essence for enhanced clarity, engagement, and viewer retention.
+    Please stay true to the essence of the original script. What we're aiming for is enhanced clarity, viewer immersion, and continuity.
 
     ---ORIGINAL SCRIPT---
-        {script_data}
+    {script_data}
     """
     )
 
