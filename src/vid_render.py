@@ -11,19 +11,21 @@ from moviepy.editor import (
 from moviepy.video.fx.all import mask_color
 
 from constants import VIDEO_FPS
+from script import Script, TextScriptScene, for_every_scene
 from text_alignments_to_captions import CAPTION_COLOR_KEY
-from tmp import tmp_path, tmp_scene_sub_paths
+from tmp import tmp_content_scene_dir_path, tmp_path, tmp_scene_sub_paths
 
 import re
 
-def get_files_from_directory(directory: str, file_pattern: str):
-    """Lists all files matching the given pattern in a directory and its subdirectories."""
-    matches = []
-    pattern = re.compile(file_pattern)
+def get_files_from_directory(directory: str, file_patterns: list):
+    """Lists all files matching the given patterns in a directory and its subdirectories."""
+    matches = {file_pattern: [] for file_pattern in file_patterns}
+    patterns = {file_pattern: re.compile(file_pattern) for file_pattern in file_patterns}
     for root, dirnames, filenames in os.walk(directory):
         for filename in filenames:
-            if pattern.match(filename):
-                matches.append(os.path.join(root, filename))
+            for file_pattern, pattern in patterns.items():
+                if pattern.match(filename):
+                    matches[file_pattern].append(os.path.join(root, filename))
     return matches
 
 def hex_to_rgb(hex_color_string):
@@ -32,55 +34,49 @@ def hex_to_rgb(hex_color_string):
 
 def render_vid(
     paper_id,
+    script: Script,
     output_filename: str
 ):
-    directory_path = tmp_path(paper_id, "contentDir")
-    
-    animation_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["stock_footage"])
-    voice_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["audio"])
-    # video_caption_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["caption_video"])
-    google_image_filenames = get_files_from_directory(directory_path, tmp_scene_sub_paths["google_image"])
+    def _process_scene(context: tuple[int, int], scene: TextScriptScene):
+        section_id = context[0]
+        scene_id = context[1]
 
-    # Load the animations and the voice
-    videos = [VideoFileClip(animation) for animation in animation_filenames]
-    audios = [AudioFileClip(voice) for voice in voice_filenames]
-    # captions = [VideoFileClip(caption, has_mask=True) for caption in video_caption_filenames]
-    # google_images = [ImageClip(google_image) for google_image in google_image_filenames]
-
-    print("Videos: ", len(videos), "Audios: ", len(audios))
-    for i, video in enumerate(videos):
-        video.set_fps(VIDEO_FPS)
-        video.duration = audios[i].duration  # Sync video duration with audio
-
-        # captions[i].set_fps(VIDEO_FPS)
-        # captions[i] = captions[i].subclip(0, video.duration)  # Sync caption duration with video
-
-        # google_images[i].duration = video.duration
-        # google_images[i] = google_images[i].resize(height=1080)
-        # google_images[i].set_fps(VIDEO_FPS)
-
-        # Lay the google image above the stock image and under the caption
-        videos[i] = CompositeVideoClip([
-            video, 
-            # google_images[i], 
-            # captions[i]
-            ])  # Resize the video to a height of 1080
+        scene_dir_path = tmp_content_scene_dir_path(paper_id=paper_id, section_id=section_id, scene_id=scene_id)
         
+        media_paths = get_files_from_directory(scene_dir_path, ["audio", "stock_footage", "caption_video"])
 
-    total_audio_duration = sum(clip.duration for clip in audios)
-    total_video_duration = sum(clip.duration for clip in videos)
+        audio = AudioFileClip(media_paths["audio"][0])
+        caption = VideoFileClip(media_paths["caption_video"][0], has_mask=True)
+        stock_videos = [VideoFileClip(video) for video in media_paths["stock_footage"]]
 
-    # Add a black clip with cross dissolve if audio is longer than video
-    if total_audio_duration > total_video_duration:
-        black_clip_duration = total_audio_duration - total_video_duration
-        black_clip = ColorClip((1920, 1080), col=(0, 0, 0), duration=black_clip_duration)
-        black_clip = black_clip.crossfadein(1).crossfadeout(1)  # 1-second cross dissolve in and out
-        videos.append(black_clip)
+        single_stock_video = concatenate_videoclips(stock_videos, method="compose")
+        single_stock_video = single_stock_video.resize(height=1080)
 
-    concatenated_video = concatenate_videoclips(videos, method="compose")
-    concatenated_audio = concatenate_audioclips(audios)
-    final_video = concatenated_video.set_audio(concatenated_audio)
-    final_video.duration = total_audio_duration 
+        caption = caption.subclip(0, single_stock_video.duration)
+        caption = caption.set_fps(VIDEO_FPS)
+        caption = caption.resize(height=1080)
+
+        video = CompositeVideoClip([
+            single_stock_video, 
+            caption
+        ])
+
+        # Add a black clip with cross dissolve if audio is longer than video
+        if audio.duration > video.duration:
+            black_clip_duration = audio.duration - video.duration
+            black_clip = ColorClip((1920, 1080), col=(0, 0, 0), duration=black_clip_duration)
+            black_clip = black_clip.crossfadein(1).crossfadeout(1)  # 1-second cross dissolve in and out
+            video = concatenate_videoclips([video, black_clip], method="compose")
+        else:
+            video = video.set_duration(audio.duration)
+
+        video = video.set_audio(audio)
+
+        return video
+
+    clips = for_every_scene(script, _process_scene)
+
+    final_video = concatenate_videoclips(clips, method="compose")
 
     # Write the result to a file
     final_video.write_videofile(output_filename, codec="libx264", audio_codec="aac", fps=VIDEO_FPS)

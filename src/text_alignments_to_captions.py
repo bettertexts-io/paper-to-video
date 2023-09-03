@@ -56,16 +56,17 @@ class WordOverlay(Scene):
 
             print(text_fragment)
             
+            texts = []
             if(text_fragment != ""):
                 lines = textwrap.wrap(text_fragment, width=18)  # adjust width as needed
                 texts = [Text(line, font="Sans Serif", font_size=70, stroke_width=8, stroke_color=BLACK, weight=BOLD, warn_missing_font=False).move_to(ORIGIN - i*(UP + 0.2)) for i, line in enumerate(lines)]
                 self.play(*[Write(text) for text in texts], run_time=0.1)
-            else:
-                self.wait(0.1)
 
-            self.wait(wait_duration - 0.1)  # wait for the next word
+            if wait_duration > 0.1:
+                self.wait(wait_duration - 0.1)  # wait for the next word
 
             self.remove(*texts)
+            
 
 def generate_scene_captions(context: Tuple[int, int], paper_id: str):
         section_id = context[0]

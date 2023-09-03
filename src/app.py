@@ -16,6 +16,7 @@ from stock_footage import generate_stock_footage
 from text_alignments_to_captions import generate_video_captions
 from vid_render import render_vid
 from tmp import tmp_loader, tmp_path, tmp_saver
+import sys
 
 # Configure logging
 load_dotenv()
@@ -98,6 +99,8 @@ def enrich_script(paper_id, barebone_script_json):
     else:
         logging.info("Using cached enriched script")
 
+    return script_with_scenes
+
 
 def refine_script(paper_id: str):
     refined_script = tmp_loader(
@@ -142,10 +145,11 @@ def generate_captions(paper_id, script_with_scenes):
     return generate_video_captions(paper_id=paper_id, script=script_with_scenes)
 
 
-def render_video(paper_id):
+def render_video(paper_id, refined_script):
     logging.info(f"Generating video")
     render_vid(
         paper_id,
+        refined_script,
         output_filename=tmp_path(paper_id=paper_id, kind="output"),
     )
 
@@ -156,17 +160,20 @@ def paper_2_video(paper_id):
         vectorize_paper(paper_id, latex)
         summary = get_summary(paper_id, latex)
         barebone_script = generate_script_from_summary(paper_id, summary)
-        enrich_script(paper_id, barebone_script)
-        refined_script = refine_script(paper_id)
+        enriched_script = enrich_script(paper_id, barebone_script)
+        refined_script = enriched_script
+        # refined_script = refine_script(paper_id)
         generate_audio(paper_id, refined_script)
         get_stock_footage(paper_id, refined_script)
         fetch_google_images(paper_id=paper_id, script=refined_script)
         generate_captions(paper_id, refined_script)
-        render_video(paper_id)
+        render_video(paper_id, refined_script)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
 
 if __name__ == "__main__":
     logging.info("Starting pipeline...")
-    paper_2_video("2307.08691")
+    paper_id = sys.argv[1] if len(sys.argv) > 1 else "2307.08691"
+    paper_2_video(paper_id)
+    

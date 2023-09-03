@@ -3,10 +3,14 @@ from bs4 import Script
 from serpapi import GoogleSearch
 import requests
 import shutil
+from PIL import Image
+
 
 from constants import SERP_API_KEY
 from script import TextScriptScene, for_every_scene
 from tmp import tmp_scene_path
+
+valid_file_extensions = ['jpg', 'png', 'gif', 'jpeg']
 
 def fetch_image(searchQuery: str, filenameWithoutExtension: str):
     params = {
@@ -18,7 +22,7 @@ def fetch_image(searchQuery: str, filenameWithoutExtension: str):
         "gl": "us",  # Changed from 'en' to 'us' to fix the 'Unsupported `en` country - gl parameter.' error
         "google_domain": "google.de",
         "api_key": SERP_API_KEY,
-        "filetype": "jpg|png|gif|webp",  # Added to filter for image files
+        "filetype": "|".join(valid_file_extensions),  # Constructed from valid_file_extensions
         "tbs": "isz:lt,islt:2mp",  # Added to filter for big files (larger than 2MP)
     }       
 
@@ -39,17 +43,21 @@ def fetch_image(searchQuery: str, filenameWithoutExtension: str):
         response.raise_for_status()
 
         file_extension = response.headers['content-type'].split('/')[-1]
+
+        if file_extension not in valid_file_extensions:
+            continue
+
         filename = f"{filenameWithoutExtension}.{file_extension}"
 
         with open(filename, 'wb') as out_file:
             shutil.copyfileobj(response.raw, out_file)
         del response
-        
+
         return filename
+
       except Exception as e:
         print(e)
         continue
-    
 
 
 def fetch_google_images(paper_id: str, script: Script):
@@ -79,4 +87,4 @@ def fetch_google_images(paper_id: str, script: Script):
 
 
 if __name__ == "__main__":
-    fetch_image("test query", "test_filename.jpg")
+    fetch_image("Machine learning concept animation", "test_filename.jpg")

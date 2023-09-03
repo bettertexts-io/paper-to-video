@@ -1,3 +1,4 @@
+import re
 from typing import List, Tuple
 import os
 from enum import Enum
@@ -92,16 +93,19 @@ def align_audio_with_text(audio_path, text_content, output_path):
     config_string = "task_language=eng|os_task_file_format=json|is_text_type=plain"
 
     # Split the text_content into chunks of up to 18 characters, without splitting words
+    # Also split with every , or . in the text, ignoring the max possible length
     text_chunks = []
     current_chunk = ''
     for word in text_content.split():
-        if len(current_chunk) + len(word) + 1 > 18:  # +1 for the space
+        print(text_chunks, current_chunk, word)
+        if len(current_chunk) + len(word) + 1 > 18 or ',' in current_chunk or '.' in current_chunk or '?' in current_chunk or '!' in current_chunk:  # +1 for the space
             text_chunks.append(current_chunk)
             current_chunk = word
         else:
             current_chunk += ' ' + word if current_chunk else word
     if current_chunk:
         text_chunks.append(current_chunk)
+
 
     word_by_word_text = "\n...\n".join(text_chunks)
 

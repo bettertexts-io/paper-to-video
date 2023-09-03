@@ -22,7 +22,7 @@ tmp_sub_paths = {
 tmp_scene_sub_paths = {
     "audio": "audio.mp3",
     "text_alignments": "audio_text_alignments.json",
-    "stock_footage": "stock_footage.mp4",
+    "stock_footage": "stock_footage",
     "caption_video": "caption_video.mov",
     "google_image": "google_image",
 }
@@ -109,6 +109,8 @@ def tmp_saver(paper_id: str, kind: Optional[str], data, save_type: Optional[str]
 
     except Exception as e:
         print(f"Failed to save data to {path}: {e}")
+
+    return path
 
 
 def create_directories_from_path(path):
