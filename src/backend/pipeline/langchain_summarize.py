@@ -1,12 +1,9 @@
-import logging
-
 from langchain import PromptTemplate
 from langchain.chains.summarize import load_summarize_chain
 from langchain.chat_models import ChatOpenAI
 
-import constants
-from constants import OPENAI_API_KEY
-from latex_to_chunks import chunk_latex_into_docs
+from .constants import OPENAI_API_KEY
+from .latex_to_chunks import chunk_latex_into_docs
 
 llm = ChatOpenAI(model_name="gpt-4", temperature=0)
 
@@ -78,7 +75,9 @@ Summarize a text input by using the langchain map_reduce summarization chain.
 """
 
 
-def summarize_by_map_reduce(text, map_prompt_template=None, combine_prompt_template=None):
+def summarize_by_map_reduce(
+    text, map_prompt_template=None, combine_prompt_template=None
+):
     docs = chunk_latex_into_docs(text)
 
     num_docs = len(docs)
@@ -94,6 +93,11 @@ def summarize_by_map_reduce(text, map_prompt_template=None, combine_prompt_templ
     )
 
     # removed prompt cause it's no longer supported
-    summary_chain = load_summarize_chain(llm=llm, chain_type="map_reduce", map_prompt=map_promopt, combine_prompt=combine_prompt)
+    summary_chain = load_summarize_chain(
+        llm=llm,
+        chain_type="map_reduce",
+        map_prompt=map_promopt,
+        combine_prompt=combine_prompt,
+    )
 
     return summary_chain.run(docs)

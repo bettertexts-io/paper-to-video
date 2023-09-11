@@ -3,9 +3,9 @@ import textwrap
 from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 
-from answer_as_json import answer_as_json
-from constants import OPENAI_API_KEY
-from script import generate_script_schema
+from .answer_as_json import answer_as_json
+from .constants import OPENAI_API_KEY
+from .script import generate_script_schema
 
 llm = ChatOpenAI(model_name="gpt-4", temperature=0.7)
 
@@ -22,7 +22,7 @@ def generate_barebone_script(summary: str):
     """
 
     text_template = textwrap.dedent(
-    """
+        """
     ---INSTRUCTIONS---
     Channeling Yannic Kilcher's analytical style, transform the given summary into a detailed video script:
 
@@ -36,16 +36,14 @@ def generate_barebone_script(summary: str):
 
     ---SUMMARY---
     {input}
-    """)
+    """
+    )
 
     prompt_template = PromptTemplate.from_template(template=text_template)
     schema = generate_script_schema(exclude_scenes=True)
 
     answer_obj = answer_as_json(
-        llm=llm,
-        schema=schema,
-        prompt=prompt_template,
-        input=summary
+        llm=llm, schema=schema, prompt=prompt_template, input=summary
     )
 
     return answer_obj

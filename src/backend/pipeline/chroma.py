@@ -1,4 +1,3 @@
-import os
 from enum import Enum
 import random
 import uuid
@@ -11,10 +10,10 @@ from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddi
 from langchain.schema import Document
 from langchain.vectorstores import Chroma
 
-from constants import *
-from latex_to_chunks import chunk_latex_into_sections
-from latex_to_text import extract_text_from_latex
-from paper_loader import paper_id_to_latex
+from .constants import *
+from .latex_to_chunks import chunk_latex_into_sections
+from .latex_to_text import extract_text_from_latex
+from .paper_loader import paper_id_to_latex
 
 llm = ChatOpenAI(
     model_name="gpt-4",
@@ -48,6 +47,7 @@ Craft a structured script with a narrator and scene descriptions. Avoid introduc
 Vectorize the paper in Chroma vector store using the given embedding function
 """
 
+
 def random_uuid():
     return uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
 
@@ -74,7 +74,11 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
     # load it into Chroma
     collection_name = "paper_" + paper_id
     db = Chroma.from_documents(
-        documents=docs, embedding=embedding_function, persist_directory="../chroma_db", ids=ids, collection_name=collection_name
+        documents=docs,
+        embedding=embedding_function,
+        persist_directory="../chroma_db",
+        ids=ids,
+        collection_name=collection_name,
     )
     db.persist()
 
@@ -82,7 +86,11 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
 def query_chroma(paper_id: str, input: str, number_of_results=4):
     # Load chroma
     collection_name = "paper_" + paper_id
-    db = Chroma(persist_directory="../chroma_db", embedding_function=embedding_function, collection_name=collection_name)
+    db = Chroma(
+        persist_directory="../chroma_db",
+        embedding_function=embedding_function,
+        collection_name=collection_name,
+    )
 
     docs = db.similarity_search(input, k=number_of_results)
 
@@ -126,5 +134,5 @@ if __name__ == "__main__":
     # Query paper by prompt
     question = "Summarize this paper"
 
-    answer = query_chroma_by_prompt_with_template(paper_id, question) 
+    answer = query_chroma_by_prompt_with_template(paper_id, question)
     print(answer)

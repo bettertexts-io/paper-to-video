@@ -6,13 +6,13 @@ import re
 from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 
-from answer_as_json import answer_as_json
-from chroma import (
+from .answer_as_json import answer_as_json
+from .chroma import (
     query_chroma,
     query_chroma_by_prompt,
     query_chroma_by_prompt_with_template,
 )
-from script import ScriptSection, script_scene_schema, script_schema
+from .script import ScriptSection, script_scene_schema, script_schema
 
 
 def generate_script(paper_id: str, barebone_script_json: dict):
@@ -57,7 +57,9 @@ def enrich_script_with_resources(paper_id: str, section_script: list):
     return enriched_scripts
 
 
-def generate_script_scenes(paper_id: str, section: ScriptSection, last_two_sections: tuple[str, str]):
+def generate_script_scenes(
+    paper_id: str, section: ScriptSection, last_two_sections: tuple[str, str]
+):
     """
     Given the script of a section, generate a list of scenes for the video.
     """
@@ -65,7 +67,7 @@ def generate_script_scenes(paper_id: str, section: ScriptSection, last_two_secti
     docs = query_chroma_by_prompt(paper_id, section["title"])
 
     prompt_input = textwrap.dedent(
-    """
+        """
     ---INSTRUCTIONS---
     Your task is to design insightful video scenes reminiscent of Yannic Kilcher's in-depth explorations of academic topics. Ensure the following:
 
@@ -97,7 +99,13 @@ def generate_script_scenes(paper_id: str, section: ScriptSection, last_two_secti
         llm=llm,
         schema=script_scene_schema,
         prompt=prompt_template,
-        input=({'section_context': section["context"], 'relevant_docs': str(docs), 'last_two_sections': last_two_sections}),
+        input=(
+            {
+                "section_context": section["context"],
+                "relevant_docs": str(docs),
+                "last_two_sections": last_two_sections,
+            }
+        ),
     )
 
     return answer_obj["scenes"]
@@ -109,7 +117,7 @@ def refine_script_content(script_json: str):
     """
 
     text_template = textwrap.dedent(
-    """
+        """
     ---INSTRUCTIONS---
     We're diving deep into a scientific exploration in the style of Yannic Kilcher. The goal is to create an engaging YouTube video inspired by a particular academic theme, and we need to ensure it's crystal clear and captivating for our audience.
 
@@ -138,7 +146,7 @@ def refine_script_content(script_json: str):
         llm=llm,
         schema=script_schema,
         prompt=prompt_template,
-        input=({'script_data': script_json}),
+        input=({"script_data": script_json}),
     )
 
     return answer_obj
