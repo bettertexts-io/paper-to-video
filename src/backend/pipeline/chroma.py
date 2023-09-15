@@ -1,4 +1,5 @@
 from enum import Enum
+import logging
 import random
 import uuid
 
@@ -57,6 +58,13 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
     random.seed(paper_id)
     sections = chunk_latex_into_sections(latex_input)
 
+    # Check if the paper has already been embedded in Chroma
+    collection_name = "paper_" + paper_id
+    # TODO: Fix this
+    # if Chroma.get(persist_directory="chroma_db", collection_name=collection_name):
+    #     logging.info(f"The collection for paper ID {paper_id} already exists. Skipping embedding.")
+    #     return
+
     docs = []
     ids = []
     for section in sections:
@@ -72,11 +80,10 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
         docs.append(doc)
 
     # load it into Chroma
-    collection_name = "paper_" + paper_id
     db = Chroma.from_documents(
         documents=docs,
         embedding=embedding_function,
-        persist_directory="./chroma_db",
+        persist_directory="chroma_db",
         ids=ids,
         collection_name=collection_name,
     )
@@ -87,7 +94,7 @@ def query_chroma(paper_id: str, input: str, number_of_results=4):
     # Load chroma
     collection_name = "paper_" + paper_id
     db = Chroma(
-        persist_directory="./chroma_db",
+        persist_directory="chroma_db",
         embedding_function=embedding_function,
         collection_name=collection_name,
     )
@@ -102,7 +109,7 @@ def query_chroma_by_prompt(paper_id, question: str):
     docs = query_chroma(paper_id, question)
 
     # Query your database here
-    chain = load_qa_chain(llm, chain_type="map_reduce", verbose=True)
+    chain = load_qa_chain(llm, chain_type="map_reduce")
 
     return chain.run(input_documents=docs, question=question)
 
@@ -116,7 +123,7 @@ def query_chroma_by_prompt_with_template(
     PROMPT = PromptTemplate(
         template=prompt_template, input_variables=["context", "question"]
     )
-    chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT, verbose=True)
+    chain = load_qa_chain(llm, chain_type="stuff", prompt=PROMPT)
 
     result = chain(
         {"input_documents": docs, "question": question}, return_only_outputs=True

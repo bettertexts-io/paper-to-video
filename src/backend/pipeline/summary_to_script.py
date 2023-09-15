@@ -7,7 +7,7 @@ from .answer_as_json import answer_as_json
 from .constants import OPENAI_API_KEY
 from .script import generate_script_schema
 
-llm = ChatOpenAI(model_name="gpt-4", temperature=0.7)
+llm = ChatOpenAI(model_name="gpt-4", temperature=0.8)
 
 
 def generate_barebone_script(summary: str):
@@ -23,20 +23,30 @@ def generate_barebone_script(summary: str):
 
     text_template = textwrap.dedent(
         """
-    ---INSTRUCTIONS---
-    Channeling Yannic Kilcher's analytical style, transform the given summary into a detailed video script:
+      ---INSTRUCTIONS---
+      Convert the summary into a Yannic Kilcher-style script, which delves into the topic's depth. Follow these steps to craft a script:
 
-    1. **Introduction**: Start with a question or statement about the topic's importance.
-    2. **Segmentation**: Divide the summary into at least five sections. Each should have:
-        a) **Title**: A meaningful header.
-        b) **Context**: Detailed content, balancing depth with clarity.
-    3. **Flow**: Ensure logical progression between sections.
-    4. **Avoid Visuals**: Focus on narrative content; omit visual references.
-    5. **Conclusion**: Summarize and end with a thought-provoking question or statement.
+      1. **Introduction**:
+      a) Begin with a bold statement or question highlighting the topic's importance.
+      b) Briefly state the scientific paper's main focus.
 
-    ---SUMMARY---
-    {input}
-    """
+      2. **Segmentation**:
+      a) Split the summary into 4-5 distinct sections.
+      b) For each section, create:
+         - **Title**: A descriptive header.
+         - **Context**: Detailed, clear content that offers a comprehensive view of the discussed aspects.
+
+      3. **Flow**:
+      a) Ensure smooth transitions between sections.
+      b) Maintain a strong narrative without referencing visuals.
+
+      4. **Conclusion**:
+      a) Summarize the discussed key points.
+      b) End with a thought-provoking question or statement.
+
+      ---SUMMARY---
+      {input}
+      """
     )
 
     prompt_template = PromptTemplate.from_template(template=text_template)

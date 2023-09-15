@@ -1,3 +1,4 @@
+import glob
 import logging
 import os
 from typing import Optional
@@ -125,15 +126,17 @@ def generate_stock_footage(paper_id: str, script: Script):
 
         audio_duration = check_media_duration(audio_filename)
         print(f"Duration of audio file: {audio_duration} seconds")
-        filename = dir_path + "/stock_footage"
 
-        if os.path.exists(filename):
+        filename = dir_path + "/stock_footage"
+        filename_pattern = os.path.join(dir_path, "stock_footage*.mp4")
+
+        if glob.glob(filename_pattern):
             print(
                 "Stock footage for scene "
                 f"{context[0]}.{context[1]}"
                 " already exists"
             )
-            return filename
+            return os.path.join(dir_path, "stock_footage")
 
         _get_stock_videos(query, filename, min_duration=audio_duration)
 

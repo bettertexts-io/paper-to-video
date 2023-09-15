@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import multiprocessing
 import os
 import logging
@@ -151,7 +151,7 @@ def generate_captions(paper_id, script_with_scenes):
     return generate_video_captions(paper_id=paper_id, script=script_with_scenes)
 
 
-def render_video(paper_id, refined_script) -> str:
+def render_video(paper_id, refined_script):
     logging.info(f"Generating video")
     render_vid(
         paper_id,
@@ -165,41 +165,46 @@ def render_video(paper_id, refined_script) -> str:
 def paper_2_video(paper_id):
     try:
         # Step 1
-        update_progress(paper_id, 1, 6)
+        update_progress(paper_id, 1, 7)
         latex = fetch_paper(paper_id)
         vectorize_paper(paper_id, latex)
 
         # Step 2
-        update_progress(paper_id, 2, 6)
+        update_progress(paper_id, 2, 7)
         summary = get_summary(paper_id, latex)
 
         # Step 3
-        update_progress(paper_id, 3, 6)
+        update_progress(paper_id, 3, 7)
         barebone_script = generate_script_from_summary(paper_id, summary)
 
         # Step 4
-        update_progress(paper_id, 4, 6)
+        update_progress(paper_id, 4, 7)
         enriched_script = enrich_script(paper_id, barebone_script)
 
         # Step 5
-        update_progress(paper_id, 5, 6)
-        cpu_cores = multiprocessing.cpu_count()
-        with ThreadPoolExecutor(max_workers=cpu_cores) as executor:
-            executor.submit(generate_audio, paper_id, enriched_script)
-            executor.submit(get_stock_footage, paper_id, enriched_script)
-            executor.submit(
-                fetch_google_images, paper_id=paper_id, script=enriched_script
-            )
-            executor.submit(generate_captions, paper_id, enriched_script)
+        update_progress(paper_id, 5, 7)
+        refined_script = refine_script(paper_id)
 
         # Step 6
-        update_progress(paper_id, 6, 6)
-        video_file_id = render_video(paper_id, enriched_script)
+        update_progress(paper_id, 6, 7)
+        cpu_cores = multiprocessing.cpu_count()
+        with ProcessPoolExecutor(max_workers=cpu_cores) as executor:
+            executor.submit(generate_audio, paper_id, refined_script)
+            executor.submit(get_stock_footage, paper_id, refined_script)
+            executor.submit(
+                fetch_google_images, paper_id=paper_id, script=refined_script
+            )
+            executor.submit(generate_captions, paper_id, refined_script)
+
+        # Step7
+        update_progress(paper_id, 7, 7)
+        video_file_id = render_video(paper_id, refined_script)
 
         return video_file_id
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
+        raise e
 
 
 if __name__ == "__main__":

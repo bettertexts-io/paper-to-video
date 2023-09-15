@@ -160,6 +160,7 @@ cython_debug/
 #.idea/
 
 tmp
+tmp_archive/
 *pycache*/*
 *.mp4
 *.mp3

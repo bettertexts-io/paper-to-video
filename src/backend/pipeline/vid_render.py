@@ -1,3 +1,4 @@
+from functools import lru_cache
 import os
 from moviepy.editor import (
     AudioFileClip,
@@ -17,6 +18,7 @@ from .text_alignments_to_captions import CAPTION_COLOR_KEY
 from .tmp import tmp_content_scene_dir_path, tmp_path, tmp_scene_sub_paths
 
 
+@lru_cache(maxsize=None)
 def get_files_from_directory(directory: str, file_patterns: list):
     """Lists all files matching the given patterns in a directory and its subdirectories."""
     matches = {file_pattern: [] for file_pattern in file_patterns}
@@ -37,6 +39,13 @@ def hex_to_rgb(hex_color_string):
 
 
 def render_vid(paper_id, script: Script, output_filename: str):
+    # Check if the output file already exists, if yes, return it
+    if os.path.exists(output_filename):
+        print(
+            f"Video file {output_filename} already exists. Returning the existing file."
+        )
+        return output_filename
+
     def _process_scene(context: tuple[int, int], scene: TextScriptScene):
         section_id = context[0]
         scene_id = context[1]

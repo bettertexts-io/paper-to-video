@@ -1,9 +1,11 @@
+import asyncio
 import os
 import logging
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
+from pipeline.progress_handler import progress_dict
 from pipeline.tmp import tmp_path
 from pipeline.main import paper_2_video
 
@@ -24,6 +26,16 @@ async def create_paper_video(paper_request: PaperRequest):
         return {"video_url": video_url}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.websocket("/ws/{paper_id}")
+async def websocket_endpoint(websocket: WebSocket, paper_id: str):
+    await websocket.accept()
+    while True:
+        data = progress_dict.get(paper_id)
+        if data:
+            await websocket.send_json(data)
+        await asyncio.sleep(1)
 
 
 @app.get("/video/{video_id}")

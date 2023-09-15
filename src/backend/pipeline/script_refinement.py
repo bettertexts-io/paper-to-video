@@ -71,14 +71,15 @@ def generate_script_scenes(
     ---INSTRUCTIONS---
     Your task is to design insightful video scenes reminiscent of Yannic Kilcher's in-depth explorations of academic topics. Ensure the following:
 
-    - Derive a minimum of 4 unique scenes from the provided section context.
+    - Derive a minimum of one unique scene from the provided section context.
+    - Keep it as short as possible
     - For each scene:
         * `SpeakerScript`: Guide the viewer through a rigorous yet engaging academic discourse. Weave the narrative with clarifying explanations, posed queries, relevant contrasts, and technical challenges. Avoid directly referencing the original paper or its authors. 
         * `StockFootageQuery`: Choose search terms apt for stock platforms like Pixabay. For theoretical concepts, employ clear and specific terminology to capture the essence.
         * Note: Always set the scene type to TEXT.
     - Ensure diversity in the `StockFootageQuery` across scenes.
     - Emulate the meticulous, depth-driven approach characteristic of Yannic Kilcher.
-    - Prioritize factual accuracy while keeping the academic audience engrossed. Sidestep overly broad examples and repetitiveness.
+    - Uphold factual accuracy and avoid repetition, ensuring a depth-driven approach.
 
     ---PREVIOUS SECTIONS (For Reference)---
     {last_two_sections}
@@ -119,19 +120,17 @@ def refine_script_content(script_json: str):
     text_template = textwrap.dedent(
         """
     ---INSTRUCTIONS---
-    We're diving deep into a scientific exploration in the style of Yannic Kilcher. The goal is to create an engaging YouTube video inspired by a particular academic theme, and we need to ensure it's crystal clear and captivating for our audience.
-
-    When refining each scene in the provided script, kindly adhere to the following steps:
+    Refine the script content to craft a concise, engaging, and clear YouTube video in the style of Yannic Kilcher. Your refined script should not exceed 50 sentences to keep the video focused and viewer-friendly. Follow these guidelines:
 
     1. 'SpeakerScript' refinements:
-    - Begin with an enthusiastic welcome, drawing our viewers into the academic journey right from the first scene.
-    - Conclude the last scene with gratitude, subtly hinting at the excitement the next video promises.
-    - Weave a consistent storyline throughout, ensuring there's a coherent narrative arc from start to finish.
+    - Start with a welcoming introduction, inviting viewers into the academic journey.
+    - Conclude the final scene with a thank you note, teasing the excitement the next video will bring.
+    - Foster a cohesive narrative arc throughout, ensuring the script remains engaging yet concise.
 
     2. 'StockFootageQuery' suggestions:
-    - Handpick terms that will lead to visuals deeply aligned with the scene's core message. The more relevant, the better.
+    - Choose terms that deeply resonate with the core message of each scene, enhancing visual alignment and relevance.
 
-    Please stay true to the essence of the original script. What we're aiming for is enhanced clarity, viewer immersion, and continuity.
+    Preserve the original script's spirit, focusing on heightened clarity and immersive viewer experience.
 
     ---ORIGINAL SCRIPT---
     {script_data}
@@ -140,7 +139,7 @@ def refine_script_content(script_json: str):
 
     prompt_template = PromptTemplate.from_template(template=text_template)
 
-    llm = ChatOpenAI(model_name="gpt-4", temperature=0.75)
+    llm = ChatOpenAI(model_name="gpt-3.5-turbo-16k", temperature=0.8)
 
     answer_obj = answer_as_json(
         llm=llm,

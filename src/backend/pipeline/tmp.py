@@ -2,7 +2,8 @@ import json
 import os
 from typing import Optional
 
-tmp_dir_path = os.path.abspath("tmp")
+script_dir = os.path.dirname(os.path.realpath(__file__))
+tmp_dir_path = os.path.join(script_dir, "tmp")
 
 
 tmp_sub_paths = {
