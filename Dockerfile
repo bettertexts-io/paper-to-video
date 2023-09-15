@@ -1,4 +1,4 @@
-FROM python:3.11-bookworm
+FROM python:3.9
 
 WORKDIR /app
 
@@ -19,6 +19,7 @@ RUN set -x \
    texlive-science \
    tipa \
    ffmpeg \
+   libespeak-dev \
    build-essential \
    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -29,13 +30,5 @@ EXPOSE 8000 8501
 RUN chmod 755 /
 
 RUN pip install -U pip
+RUN pip install numpy
 RUN pip install -r requirements.txt
-
-# Define the ENTRY environment variable with a default value
-ENV ENTRY=src/app.py
-ENV EVIRONMENT=production
-
-RUN chmod u+x docker-entry.sh
-
-# Run the Python script specified by the ENTRY environment variable
-CMD ./docker-entry.sh "$ENTRY"
