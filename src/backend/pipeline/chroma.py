@@ -76,7 +76,7 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
     db = Chroma.from_documents(
         documents=docs,
         embedding=embedding_function,
-        persist_directory="../chroma_db",
+        persist_directory="./chroma_db",
         ids=ids,
         collection_name=collection_name,
     )
@@ -87,7 +87,7 @@ def query_chroma(paper_id: str, input: str, number_of_results=4):
     # Load chroma
     collection_name = "paper_" + paper_id
     db = Chroma(
-        persist_directory="../chroma_db",
+        persist_directory="./chroma_db",
         embedding_function=embedding_function,
         collection_name=collection_name,
     )

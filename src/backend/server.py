@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from pipeline.tmp import tmp_path
-from pipeline.app import paper_2_video
+from pipeline.main import paper_2_video
 
 app = FastAPI()
 

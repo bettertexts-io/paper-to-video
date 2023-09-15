@@ -5,9 +5,11 @@ import requests
 
 def main():
     st.title("Paper2Video")
-    st.write("Please enter the URL to an arXiv paper:")
 
-    paper_url = st.text_input("", placeholder="e.g. https://arxiv.org/abs/1706.03762")
+    paper_url = st.text_input(
+        "Please enter the URL to an arXiv paper:",
+        placeholder="e.g. https://arxiv.org/abs/1706.03762",
+    )
 
     if st.button("Submit"):
         if paper_url:

@@ -34,3 +34,6 @@ imageio_ffmpeg
 aeneas
 gtts
 google-search-results
+streamlit
+fastapi
+uvicorn

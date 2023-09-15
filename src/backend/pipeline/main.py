@@ -1,6 +1,10 @@
+from concurrent.futures import ThreadPoolExecutor
+import multiprocessing
 import os
 import logging
 from dotenv import load_dotenv
+
+from .progress_handler import update_progress
 from .fetch_google_image import fetch_google_images
 from .paper_loader import paper_id_to_latex
 from .chroma import vectorize_latex_in_chroma
@@ -160,19 +164,40 @@ def render_video(paper_id, refined_script) -> str:
 
 def paper_2_video(paper_id):
     try:
+        # Step 1
+        update_progress(paper_id, 1, 6)
         latex = fetch_paper(paper_id)
         vectorize_paper(paper_id, latex)
+
+        # Step 2
+        update_progress(paper_id, 2, 6)
         summary = get_summary(paper_id, latex)
+
+        # Step 3
+        update_progress(paper_id, 3, 6)
         barebone_script = generate_script_from_summary(paper_id, summary)
+
+        # Step 4
+        update_progress(paper_id, 4, 6)
         enriched_script = enrich_script(paper_id, barebone_script)
-        refined_script = enriched_script
-        # refined_script = refine_script(paper_id)
-        generate_audio(paper_id, refined_script)
-        get_stock_footage(paper_id, refined_script)
-        fetch_google_images(paper_id=paper_id, script=refined_script)
-        generate_captions(paper_id, refined_script)
-        video_file_id = render_video(paper_id, refined_script)
+
+        # Step 5
+        update_progress(paper_id, 5, 6)
+        cpu_cores = multiprocessing.cpu_count()
+        with ThreadPoolExecutor(max_workers=cpu_cores) as executor:
+            executor.submit(generate_audio, paper_id, enriched_script)
+            executor.submit(get_stock_footage, paper_id, enriched_script)
+            executor.submit(
+                fetch_google_images, paper_id=paper_id, script=enriched_script
+            )
+            executor.submit(generate_captions, paper_id, enriched_script)
+
+        # Step 6
+        update_progress(paper_id, 6, 6)
+        video_file_id = render_video(paper_id, enriched_script)
+
         return video_file_id
+
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
