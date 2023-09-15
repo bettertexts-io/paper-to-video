@@ -24,6 +24,8 @@ RUN set -x \
 
 COPY . /app
 
+EXPOSE 8000 8501
+
 RUN chmod 755 /
 
 RUN pip install -U pip

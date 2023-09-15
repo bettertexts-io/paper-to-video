@@ -79,6 +79,8 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
         ids.append(str(random_uuid()))
         docs.append(doc)
 
+    logging.info(docs)
+
     # load it into Chroma
     db = Chroma.from_documents(
         documents=docs,

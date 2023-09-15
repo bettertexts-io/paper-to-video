@@ -37,3 +37,4 @@ google-search-results
 streamlit
 fastapi
 uvicorn
+websockets

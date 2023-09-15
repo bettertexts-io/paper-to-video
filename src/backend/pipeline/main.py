@@ -1,4 +1,4 @@
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, wait
 import multiprocessing
 import os
 import logging
@@ -179,7 +179,7 @@ def paper_2_video(paper_id):
 
         # Step 4
         update_progress(paper_id, 4, 7)
-        enriched_script = enrich_script(paper_id, barebone_script)
+        enrich_script(paper_id, barebone_script)
 
         # Step 5
         update_progress(paper_id, 5, 7)
@@ -189,12 +189,17 @@ def paper_2_video(paper_id):
         update_progress(paper_id, 6, 7)
         cpu_cores = multiprocessing.cpu_count()
         with ProcessPoolExecutor(max_workers=cpu_cores) as executor:
-            executor.submit(generate_audio, paper_id, refined_script)
-            executor.submit(get_stock_footage, paper_id, refined_script)
-            executor.submit(
-                fetch_google_images, paper_id=paper_id, script=refined_script
-            )
-            executor.submit(generate_captions, paper_id, refined_script)
+            futures = [
+                executor.submit(generate_audio, paper_id, refined_script),
+                executor.submit(get_stock_footage, paper_id, refined_script),
+                executor.submit(
+                    fetch_google_images, paper_id=paper_id, script=refined_script
+                ),
+                executor.submit(generate_captions, paper_id, refined_script),
+            ]
+
+            # Wait for all futures to complete
+            wait(futures)
 
         # Step7
         update_progress(paper_id, 7, 7)
