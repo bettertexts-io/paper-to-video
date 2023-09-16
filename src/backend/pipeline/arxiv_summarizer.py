@@ -3,7 +3,7 @@ import os
 from langchain.agents import AgentType, initialize_agent, load_tools
 from langchain.chat_models import ChatOpenAI
 
-from constants import OPENAI_API_KEY
+from .constants import OPENAI_API_KEY
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 

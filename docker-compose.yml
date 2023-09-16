@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+    command: uvicorn src.backend.server:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./src/backend/media:/app/src/backend/media
+      - ./src/backend/tmp:/app/src/backend/tmp
+      - ./src/backend/pipeline/tmp:/app/src/backend/pipeline/tmp
+      - ./src/backend/chroma_db:/app/src/backend/chroma_db
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+    env_file:
+      - .env
+
+  frontend:
+    build: 
+      context: .
+    command: streamlit run src/frontend/app.py
+    volumes:
+      - ./src/frontend:/app/src/frontend
+    ports:
+      - "8501:8501"
+    depends_on: 
+      - backend
+    environment:
+      - ENVIRONMENT=production
+    env_file:
+      - .env

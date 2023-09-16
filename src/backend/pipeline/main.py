@@ -1,21 +1,25 @@
+from concurrent.futures import ProcessPoolExecutor, wait
+import multiprocessing
 import os
 import logging
 from dotenv import load_dotenv
-from fetch_google_image import fetch_google_images
-from paper_loader import paper_id_to_latex
-from chroma import vectorize_latex_in_chroma
-from langchain_summarize import (
+
+from .progress_handler import update_progress
+from .fetch_google_image import fetch_google_images
+from .paper_loader import paper_id_to_latex
+from .chroma import vectorize_latex_in_chroma
+from .langchain_summarize import (
     COMBINE_SUMMARY_PROMPT,
     MAP_SUMMARY_PROMPT,
     summarize_by_map_reduce,
 )
-from summary_to_script import generate_barebone_script
-from script_refinement import generate_script_scenes, refine_script_content
-from text_to_voice import generate_script_audio_pieces
-from stock_footage import generate_stock_footage
-from text_alignments_to_captions import generate_video_captions
-from vid_render import render_vid
-from tmp import tmp_loader, tmp_path, tmp_saver
+from .summary_to_script import generate_barebone_script
+from .script_refinement import generate_script_scenes, refine_script_content
+from .text_to_voice import generate_script_audio_pieces
+from .stock_footage import generate_stock_footage
+from .text_alignments_to_captions import generate_video_captions
+from .vid_render import render_vid
+from .tmp import tmp_loader, tmp_path, tmp_saver
 import sys
 
 # Configure logging
@@ -84,7 +88,9 @@ def enrich_script(paper_id, barebone_script_json):
                     sections[index - 1]["context"],
                 ]
 
-            scenes = generate_script_scenes(paper_id, section, last_two_sections=last_two)
+            scenes = generate_script_scenes(
+                paper_id, section, last_two_sections=last_two
+            )
 
             # Append section and its scenes to the script_with_scenes
             script_with_scenes["sections"].append(section)
@@ -104,10 +110,10 @@ def enrich_script(paper_id, barebone_script_json):
 
 def refine_script(paper_id: str):
     refined_script = tmp_loader(
-            paper_id=paper_id, kind="script_with_scenes_refined", save_type="json"
+        paper_id=paper_id, kind="script_with_scenes_refined", save_type="json"
     )
-     
-    if refined_script is None:   
+
+    if refined_script is None:
         logging.info(f"Refine script...")
 
         script_with_scenes = tmp_loader(
@@ -153,27 +159,60 @@ def render_video(paper_id, refined_script):
         output_filename=tmp_path(paper_id=paper_id, kind="output"),
     )
 
+    return paper_id
+
 
 def paper_2_video(paper_id):
     try:
+        # Step 1
+        update_progress(paper_id, 1, 7)
         latex = fetch_paper(paper_id)
         vectorize_paper(paper_id, latex)
+
+        # Step 2
+        update_progress(paper_id, 2, 7)
         summary = get_summary(paper_id, latex)
+
+        # Step 3
+        update_progress(paper_id, 3, 7)
         barebone_script = generate_script_from_summary(paper_id, summary)
-        enriched_script = enrich_script(paper_id, barebone_script)
-        refined_script = enriched_script
-        # refined_script = refine_script(paper_id)
-        generate_audio(paper_id, refined_script)
-        get_stock_footage(paper_id, refined_script)
-        fetch_google_images(paper_id=paper_id, script=refined_script)
-        generate_captions(paper_id, refined_script)
-        render_video(paper_id, refined_script)
+
+        # Step 4
+        update_progress(paper_id, 4, 7)
+        enrich_script(paper_id, barebone_script)
+
+        # Step 5
+        update_progress(paper_id, 5, 7)
+        refined_script = refine_script(paper_id)
+
+        # Step 6
+        update_progress(paper_id, 6, 7)
+        cpu_cores = multiprocessing.cpu_count()
+        with ProcessPoolExecutor(max_workers=cpu_cores) as executor:
+            futures = [
+                executor.submit(generate_audio, paper_id, refined_script),
+                executor.submit(get_stock_footage, paper_id, refined_script),
+                executor.submit(
+                    fetch_google_images, paper_id=paper_id, script=refined_script
+                ),
+                executor.submit(generate_captions, paper_id, refined_script),
+            ]
+
+            # Wait for all futures to complete
+            wait(futures)
+
+        # Step7
+        update_progress(paper_id, 7, 7)
+        video_file_id = render_video(paper_id, refined_script)
+
+        return video_file_id
+
     except Exception as e:
         logging.error(f"An error occurred: {e}")
+        raise e
 
 
 if __name__ == "__main__":
     logging.info("Starting pipeline...")
-    paper_id = sys.argv[1] if len(sys.argv) > 1 else "2307.08691"
+    paper_id = sys.argv[1] if len(sys.argv) > 1 else "2303.12712"
     paper_2_video(paper_id)
-    

@@ -1,6 +1,6 @@
 from pylatexenc.latex2text import LatexNodes2Text
 
-from paper_loader import paper_id_to_latex
+from .paper_loader import paper_id_to_latex
 
 
 def extract_text_from_latex(latex_code):

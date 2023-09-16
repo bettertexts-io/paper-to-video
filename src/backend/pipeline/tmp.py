@@ -1,8 +1,9 @@
 import json
 import os
-from typing import Optional, Literal
+from typing import Optional
 
-tmp_dir_path = os.path.abspath("tmp")
+script_dir = os.path.dirname(os.path.realpath(__file__))
+tmp_dir_path = os.path.join(script_dir, "tmp")
 
 
 tmp_sub_paths = {
@@ -27,11 +28,13 @@ tmp_scene_sub_paths = {
     "google_image": "google_image",
 }
 
+
 def tmp_paper_dir_path(paper_id: str):
     if not paper_id:
         raise Exception("Invalid paper_id for tmp_dir_path " + str(paper_id))
 
     return f"{tmp_dir_path}/{paper_id}"
+
 
 def tmp_path(paper_id: str, kind: str):
     # create dir with a key of type type
@@ -46,6 +49,7 @@ def tmp_path(paper_id: str, kind: str):
         return f"{dir_path}/{tmp_sub_paths[kind]}"
     else:
         raise Exception("Invalid type for tmp_path " + str(kind))
+
 
 def tmp_scene_path(paper_id: str, section_id: int, scene_id: int, kind: Optional[str]):
     dir_path = tmp_content_scene_dir_path(paper_id, section_id, scene_id)

@@ -1,7 +1,5 @@
-import logging
 import os
 
-import poe
 from dotenv import load_dotenv
 
 load_dotenv()

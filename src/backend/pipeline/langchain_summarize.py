@@ -1,12 +1,13 @@
-import logging
-
 from langchain import PromptTemplate
 from langchain.chains.summarize import load_summarize_chain
 from langchain.chat_models import ChatOpenAI
 
-import constants
-from constants import OPENAI_API_KEY
-from latex_to_chunks import chunk_latex_into_docs
+import logging
+from time import time
+from typing import Optional, List
+
+from .constants import OPENAI_API_KEY
+from .latex_to_chunks import chunk_latex_into_docs
 
 llm = ChatOpenAI(model_name="gpt-4", temperature=0)
 
@@ -51,13 +52,26 @@ Summarize a text input by using the langchain refine summarization chain.
 """
 
 
-def summarize_by_refine(text, prompt_template=None):
+def summarize_by_refine(text: str, prompt_template: Optional[str] = None):
+    """
+    This function takes a LaTeX text and a prompt template, chunks the text into documents,
+    and runs a summarization refine chain on these documents.
+
+    Parameters:
+    text (str): The input LaTeX text to be processed.
+    prompt_template (str, optional): The prompt template to be used in the summarization. Defaults to None.
+
+    Returns:
+    List[str]: The summarized documents.
+    """
+    start_time = time()
+
     docs = chunk_latex_into_docs(text)
 
     num_docs = len(docs)
     num_tokens_first_doc = llm.get_num_tokens(docs[0].page_content)
 
-    print(
+    logging.info(
         f"Now we have {num_docs} documents and the first one has {num_tokens_first_doc} tokens"
     )
 
@@ -66,11 +80,23 @@ def summarize_by_refine(text, prompt_template=None):
 
     PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])
 
+    refine_chain_start_time = time()
     refine_chain = load_summarize_chain(
-        llm=llm, chain_type="refine", question_prompt=PROMPT, verbose=True
+        llm=llm, chain_type="refine", question_prompt=PROMPT
+    )
+    logging.info(
+        f"Time taken to load refine chain: {time() - refine_chain_start_time} seconds"
     )
 
-    return refine_chain.run(docs)
+    run_chain_start_time = time()
+    result = refine_chain.run(docs)
+    logging.info(
+        f"Time taken to run refine chain: {time() - run_chain_start_time} seconds"
+    )
+
+    logging.info(f"Total time taken: {time() - start_time} seconds")
+
+    return result
 
 
 """
@@ -78,7 +104,9 @@ Summarize a text input by using the langchain map_reduce summarization chain.
 """
 
 
-def summarize_by_map_reduce(text, map_prompt_template=None, combine_prompt_template=None):
+def summarize_by_map_reduce(
+    text, map_prompt_template=None, combine_prompt_template=None
+):
     docs = chunk_latex_into_docs(text)
 
     num_docs = len(docs)
@@ -94,6 +122,11 @@ def summarize_by_map_reduce(text, map_prompt_template=None, combine_prompt_templ
     )
 
     # removed prompt cause it's no longer supported
-    summary_chain = load_summarize_chain(llm=llm, chain_type="map_reduce", map_prompt=map_promopt, combine_prompt=combine_prompt)
+    summary_chain = load_summarize_chain(
+        llm=llm,
+        chain_type="map_reduce",
+        map_prompt=map_promopt,
+        combine_prompt=combine_prompt,
+    )
 
     return summary_chain.run(docs)
