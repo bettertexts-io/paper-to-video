@@ -1,14 +1,16 @@
-# Use a base image with preinstalled packages for faster builds
 FROM python:3.9-slim-buster
 
 WORKDIR /app
 
-# Install system-level dependencies first for caching
+# Install apt-utils
+RUN apt-get update && \
+   apt-get install -y apt-utils
+
+# Install system-level dependencies
 RUN set -x \
    && apt update \
    && apt upgrade -y \
    && apt-get install -y \
-   sqlite3=3.35.0 \
    build-essential \
    libcairo2-dev \
    libpango1.0-dev \
@@ -24,9 +26,11 @@ RUN set -x \
    ffmpeg \
    libespeak-dev \
    build-essential \
+   sqlite3 \
    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install python packages
+# Copy requirements.txt first for caching
+COPY requirements.txt /app/
 RUN pip install --no-cache-dir -U pip && \
    pip install --no-cache-dir -r requirements.txt
 
