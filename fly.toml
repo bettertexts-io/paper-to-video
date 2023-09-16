@@ -1,24 +1,17 @@
-# fly.toml file generated for paper-2-video on 2023-09-15T10:53:37-07:00
+# fly.toml app configuration file generated for paper-2-video on 2023-09-15T17:10:17-07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
 app = "paper-2-video"
-kill_signal = "SIGINT"
-kill_timeout = 5
-primary_region = "lax"
+primary_region = "sjc"
 
-[[services]]
-  protocol = "tcp"
+[build]
+
+[http_service]
   internal_port = 8000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
   processes = ["app"]
-
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-    force_https = true
-
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
-  [services.concurrency]
-    type = "connections"
-    hard_limit = 25
-    soft_limit = 20

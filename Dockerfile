@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9-slim-buster
 
 WORKDIR /app
 
@@ -29,6 +29,6 @@ EXPOSE 8000 8501
 
 RUN chmod 755 /
 
-RUN pip install -U pip
-RUN pip install numpy
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -U pip && \
+   pip install --no-cache-dir numpy && \
+   pip install --no-cache-dir -r requirements.txt
