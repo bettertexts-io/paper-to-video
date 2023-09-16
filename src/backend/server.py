@@ -11,6 +11,9 @@ from pipeline.main import paper_2_video
 
 app = FastAPI()
 
+BACKEND_HOST = os.environ.get("BACKEND_HOST", "127.0.0.1")
+BACKEND_PORT = os.environ.get("BACKEND_PORT", "8000")
+
 
 class PaperRequest(BaseModel):
     paper_id: str
@@ -21,7 +24,7 @@ async def create_paper_video(paper_request: PaperRequest):
     try:
         logging.info(f"paper_request: {paper_request}")
         video_file_id = paper_2_video(paper_request.paper_id)
-        video_url = f"http://127.0.0.1:8000/video/{video_file_id}"
+        video_url = f"http://{BACKEND_HOST}:{BACKEND_PORT}/video/{video_file_id}"
 
         return {"video_url": video_url}
     except Exception as e:

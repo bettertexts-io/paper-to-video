@@ -1,3 +1,4 @@
+import os
 from threading import Thread
 import streamlit as st
 import time
@@ -5,6 +6,9 @@ import requests
 import websockets
 import asyncio
 import json
+
+BACKEND_HOST = os.environ.get("BACKEND_HOST", "127.0.0.1")
+BACKEND_PORT = os.environ.get("BACKEND_PORT", "8000")
 
 
 def main():
@@ -25,7 +29,9 @@ def main():
 
 
 async def fetch_progress(paper_id, progress_bar):
-    async with websockets.connect(f"ws://127.0.0.1:8000/ws/{paper_id}") as websocket:
+    async with websockets.connect(
+        f"ws://{BACKEND_HOST}:{BACKEND_PORT}/ws/{paper_id}"
+    ) as websocket:
         while True:
             data = await websocket.recv()
             progress_data = json.loads(data)
@@ -52,7 +58,7 @@ def submit_url(paper_url):
 
         # You would replace 'YOUR_BACKEND_ENDPOINT' with the endpoint of your backend service
         response = requests.post(
-            "http://127.0.0.1:8000/paper2video",
+            f"http://{BACKEND_HOST}:{BACKEND_PORT}/paper2video",
             json={"paper_id": paper_id},
         )
 
