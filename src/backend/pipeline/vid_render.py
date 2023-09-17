@@ -19,7 +19,6 @@ from .text_alignments_to_captions import CAPTION_COLOR_KEY
 from .tmp import tmp_content_scene_dir_path, tmp_path, tmp_scene_sub_paths
 
 
-@lru_cache(maxsize=None)
 def get_files_from_directory(directory: str, file_patterns: list):
     """Lists all files matching the given patterns in a directory and its subdirectories."""
     matches = {file_pattern: [] for file_pattern in file_patterns}
