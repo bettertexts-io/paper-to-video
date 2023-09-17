@@ -1,3 +1,4 @@
+import os
 from manim import *
 from manim import config
 
@@ -27,6 +28,9 @@ class MathTexScene(Scene):
 # Mapping of annotation to scene
 scene_dict = {"text": TextScene, "mathtex": MathTexScene}
 
+current_directory = os.path.dirname(os.path.abspath(__file__))
+config.media_dir = os.path.join(current_directory, "media")
+
 
 def create_scene(input_script):
     output_files = []
@@ -36,7 +40,10 @@ def create_scene(input_script):
             scene = SceneClass(sentence)
 
             # set custom output file name
-            output_file = f"./media/videos/1080p60/partial_movie_files/{sentence.replace(' ', '_')}.mp4"
+            output_file = os.path.join(
+                current_directory,
+                f"media/videos/1080p60/partial_movie_files/{sentence.replace(' ', '_')}.mp4",
+            )
             config["output_file"] = output_file
 
             scene.render()  # Manim renders the scene upon calling this method

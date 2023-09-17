@@ -187,14 +187,22 @@ def paper_2_video(paper_id):
 
         # Step 6
         update_progress(paper_id, 6, 7)
+
         cpu_cores = multiprocessing.cpu_count()
+        logging.info(f"Using {cpu_cores} CPU cores")
+
         with ProcessPoolExecutor(max_workers=cpu_cores) as executor:
             futures = [
                 executor.submit(generate_audio, paper_id, refined_script),
                 executor.submit(get_stock_footage, paper_id, refined_script),
-                executor.submit(
-                    fetch_google_images, paper_id=paper_id, script=refined_script
-                ),
+            ]
+
+            # Wait for all futures to complete
+            wait(futures)
+
+        with ProcessPoolExecutor(max_workers=cpu_cores) as executor:
+            futures = [
+                executor.submit(fetch_google_images, paper_id, refined_script),
                 executor.submit(generate_captions, paper_id, refined_script),
             ]
 

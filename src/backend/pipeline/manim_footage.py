@@ -68,8 +68,12 @@ def generate_animation(paper_id, script_with_scenes):
                 with open(filename, "w") as f:
                     f.write(create_file_content(code_response))
 
-                # Render using manim
-                COMMAND_TO_RENDER = f"manim {filename} GenScene --format=mp4 --media_dir . --custom_folders video_dir"
+                # Get the directory of the current script
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+
+                # Command to render with media_dir set to the script directory
+                COMMAND_TO_RENDER = f"manim {filename} GenScene --format=mp4 --media_dir {script_dir}/media --custom_folders video_dir"
+
                 try:
                     subprocess.run(COMMAND_TO_RENDER, check=True, shell=True)
                 except Exception as e:

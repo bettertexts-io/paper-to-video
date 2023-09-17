@@ -79,13 +79,14 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
         ids.append(str(random_uuid()))
         docs.append(doc)
 
-    logging.info(docs)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    chroma_db_path = os.path.join(script_dir, "chroma_db")
 
     # load it into Chroma
     db = Chroma.from_documents(
         documents=docs,
         embedding=embedding_function,
-        persist_directory="chroma_db",
+        persist_directory=chroma_db_path,
         ids=ids,
         collection_name=collection_name,
     )
@@ -94,9 +95,12 @@ def vectorize_latex_in_chroma(paper_id: str, latex_input: str):
 
 def query_chroma(paper_id: str, input: str, number_of_results=4):
     # Load chroma
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    chroma_db_path = os.path.join(script_dir, "chroma_db")
+
     collection_name = "paper_" + paper_id
     db = Chroma(
-        persist_directory="chroma_db",
+        persist_directory=chroma_db_path,
         embedding_function=embedding_function,
         collection_name=collection_name,
     )
