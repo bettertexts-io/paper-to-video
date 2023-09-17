@@ -28,7 +28,7 @@ def get_files_from_directory(directory: str, file_patterns: list):
     for root, dirnames, filenames in os.walk(directory):
         for filename in filenames:
             for file_pattern, pattern in patterns.items():
-                if pattern.match(filename):
+                if pattern.match(filename) and "json" not in filename:
                     matches[file_pattern].append(os.path.join(root, filename))
     return matches
 
