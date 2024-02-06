@@ -1,4 +1,6 @@
-# Dev Run
+# Paper2Video
+
+## Dev Run
 
 `chmod u+x run.sh`
 `./run.sh dev <script to execute>`
